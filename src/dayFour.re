@@ -16,11 +16,6 @@ let part1 = (input) =>
 
 module Anagram = {
   type t = string;
-  let checksum = (s) => {
-    let total = ref(0);
-    String.iter((c) => total := total^ + int_of_char(c), s);
-    total^
-  };
   let compare = (s1, s2) => {
     let sa1 = Js.Array.join(Js.Array.sortInPlace(Js.String.split("", s1)));
     let sa2 = Js.Array.join(Js.Array.sortInPlace(Js.String.split("", s2)));
