@@ -33,7 +33,7 @@ function compare(s1, s2) {
   if (match !== 0) {
     return 0;
   } else {
-    var match$1 = +(sa1 <= sa2);
+    var match$1 = +(sa1 < sa2);
     if (match$1 !== 0) {
       return -1;
     } else {

@@ -19,7 +19,7 @@ module Anagram = {
   let compare = (s1, s2) => {
     let sa1 = Js.Array.join(Js.Array.sortInPlace(Js.String.split("", s1)));
     let sa2 = Js.Array.join(Js.Array.sortInPlace(Js.String.split("", s2)));
-    sa1 == sa2 ? 0 : sa1 <= sa2 ? (-1) : 1
+    sa1 == sa2 ? 0 : sa1 < sa2 ? (-1) : 1
   };
 };
 
