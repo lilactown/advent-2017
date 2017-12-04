@@ -12,16 +12,13 @@ function arrayToStringSet(arr) {
   return Curry._1(StringSet[/* of_list */25], $$Array.to_list(arr));
 }
 
-function noDuplicates(cardinal, pass) {
+function noDuplicates(pass) {
   var phrases = pass.split(" ");
-  return +(Curry._1(cardinal, Curry._1(StringSet[/* of_list */25], $$Array.to_list(phrases))) === phrases.length);
+  return +(Curry._1(StringSet[/* cardinal */18], Curry._1(StringSet[/* of_list */25], $$Array.to_list(phrases))) === phrases.length);
 }
 
 function part1(input) {
-  var partial_arg = StringSet[/* cardinal */18];
-  return $$Array.map((function (param) {
-                  return noDuplicates(partial_arg, param);
-                }), input.split("\n")).filter((function (v) {
+  return $$Array.map(noDuplicates, input.split("\n")).filter((function (v) {
                 return v;
               })).length;
 }

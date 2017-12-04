@@ -2,16 +2,14 @@ module StringSet = Set.Make(String);
 
 let arrayToStringSet = (arr) => StringSet.of_list(Array.to_list(arr));
 
-let noDuplicates = (cardinal, pass) => {
+let noDuplicates = (pass) => {
   let phrases = Js.String.split(" ", pass);
-  cardinal(arrayToStringSet(phrases)) == Array.length(phrases)
+  StringSet.cardinal(arrayToStringSet(phrases)) == Array.length(phrases)
 };
 
 let part1 = (input) =>
   Array.length(
-    Js.String.split("\n", input)
-    |> Array.map(noDuplicates(StringSet.cardinal))
-    |> Js.Array.filter((v) => v)
+    Js.String.split("\n", input) |> Array.map(noDuplicates) |> Js.Array.filter((v) => v)
   );
 
 module Anagram = {
