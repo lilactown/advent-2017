@@ -1,11 +1,7 @@
 module Part1 = {
   type input = string;
   type answer = int;
-  let cases = [({|0
-3
-0
-1
--3|}, 5)];
+  let cases = [("0\n3\n0\n1\n-3", 5)];
   /**
    * Solution to part 1
    */
@@ -31,11 +27,7 @@ module Part1Test = Utils.Test(Part1);
 module Part2 = {
   type input = string;
   type answer = int;
-  let cases = [({|0
-3
-0
-1
--3|}, 10)];
+  let cases = [("0\n3\n0\n1\n-3", 10)];
   /**
    * Solution to part 2
    */
