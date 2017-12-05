@@ -12,28 +12,33 @@ let abs = Js.Math.abs_int;
   8 => (0, -1)
   9 => (1, -1)
  */
-let spiral = (n) => {
-  let rec next = (x, y, count) => {
-    /* based off https://stackoverflow.com/a/31864777/4379329
-       the direction is wrong but the distance should stay the same */
-    let finished = count == n;
-    let pivot = abs(x) <= abs(y) && (x != y || x >= 0);
-    switch (finished, pivot) {
-    | (true, _) => (x, y)
-    | (_, true) =>
-      let x' = x + (y >= 0 ? 1 : (-1));
-      next(x', y, count + 1)
-    | (_, false) =>
-      let y' = y + (x >= 0 ? (-1) : 1);
-      next(x, y', count + 1)
-    }
+module Part1 = {
+  type input = int;
+  type answer = int;
+  let cases = [(1, 0), (12, 3), (23, 2), (1024, 31)];
+  let spiral = (n) => {
+    let rec next = (x, y, count) => {
+      /* based off https://stackoverflow.com/a/31864777/4379329
+         the direction is wrong but the distance should stay the same */
+      let finished = count == n;
+      let pivot = abs(x) <= abs(y) && (x != y || x >= 0);
+      switch (finished, pivot) {
+      | (true, _) => (x, y)
+      | (_, true) =>
+        let x' = x + (y >= 0 ? 1 : (-1));
+        next(x', y, count + 1)
+      | (_, false) =>
+        let y' = y + (x >= 0 ? (-1) : 1);
+        next(x, y', count + 1)
+      }
+    };
+    next(0, 0, 1)
   };
-  next(0, 0, 1)
+  let distance = ((x, y)) => abs(x) + abs(y);
+  let solve = (n) => distance(spiral(n));
 };
 
-let distance = ((x, y)) => abs(x) + abs(y);
-
-let part1 = (n) => distance(spiral(n));
+module Part1Test = Utils.Test(Part1);
 
 /**
  * For part two, I created an actual grid. I allow
@@ -61,10 +66,11 @@ let get = (grid: grid, d, x, y) =>
 
 let set = (grid: grid, d, x, y, el) => grid[- (y - d)][x + d] = el;
 
-let part2 = (n, magicNumber) => {
-  let grid = makeGrid(n);
-  let get = get(grid, n / 2);
-  let set = set(grid, n / 2);
+let spiralNeighbors = (magicNumber, n) => {
+  /* Make a grid of some magic size */
+  let grid = makeGrid(magicNumber);
+  let get = get(grid, magicNumber / 2);
+  let set = set(grid, magicNumber / 2);
   set(0, 0, Number(1));
   let rec next = (x, y) => {
     /* based off https://stackoverflow.com/a/31864777/4379329
@@ -80,7 +86,7 @@ let part2 = (n, magicNumber) => {
     let n7 = get(x + 0, y - 1);
     let n8 = get(x + 1, y - 1);
     let sum = n1 + n2 + n3 + n4 + n5 + n6 + n7 + n8;
-    let finished = sum > magicNumber || x == n / 2 && y == n / 2;
+    let finished = sum > n || x == magicNumber / 2 && y == magicNumber / 2;
     set(x, y, Number(sum));
     switch (finished, pivot) {
     | (true, _) => sum
@@ -94,3 +100,20 @@ let part2 = (n, magicNumber) => {
   };
   next(1, 0)
 };
+
+module Part2 = {
+  type input = int;
+  type answer = int;
+  let cases = [(1, 2), (2, 4), (11, 23), (30, 54), (150, 304)];
+  let solve = spiralNeighbors(11);
+};
+
+let part1 = Part1.solve;
+
+let test_part1 = Part1Test.check;
+
+let part2 = Part2.solve;
+
+module Part2Test = Utils.Test(Part2);
+
+let test_part2 = Part2Test.check;
