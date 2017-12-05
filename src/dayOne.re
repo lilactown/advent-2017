@@ -42,10 +42,10 @@ module Part2 = {
 
 module Part2Test = Utils.Test(Part2);
 
-let neighbor = Part1.solve;
+let part1 = Part1.solve;
 
-let test_neighbor = Part1Test.check;
+let test_part1 = Part1Test.check;
 
-let halfway = Part2.solve;
+let part2 = Part2.solve;
 
-let test_halfway = Part2Test.check;
+let test_part2 = Part2Test.check;

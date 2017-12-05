@@ -117,22 +117,22 @@ var Part2 = /* module */[
 
 var Part2Test = Utils$Advent2017.Test(Part2);
 
-var test_neighbor = Part1Test[/* check */0];
+var test_part1 = Part1Test[/* check */0];
 
-var test_halfway = Part2Test[/* check */0];
+var test_part2 = Part2Test[/* check */0];
 
-var neighbor = solve;
+var part1 = solve;
 
-var halfway = solve$1;
+var part2 = solve$1;
 
-exports.explode       = explode;
-exports.solver        = solver;
-exports.Part1         = Part1;
-exports.Part1Test     = Part1Test;
-exports.Part2         = Part2;
-exports.Part2Test     = Part2Test;
-exports.neighbor      = neighbor;
-exports.test_neighbor = test_neighbor;
-exports.halfway       = halfway;
-exports.test_halfway  = test_halfway;
+exports.explode    = explode;
+exports.solver     = solver;
+exports.Part1      = Part1;
+exports.Part1Test  = Part1Test;
+exports.Part2      = Part2;
+exports.Part2Test  = Part2Test;
+exports.part1      = part1;
+exports.test_part1 = test_part1;
+exports.part2      = part2;
+exports.test_part2 = test_part2;
 /* Part1Test Not a pure module */
