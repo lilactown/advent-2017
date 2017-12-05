@@ -43,18 +43,12 @@ module Part2 = {
     switch stack[pos] {
     | exception _ => step
     | offset when offset >= 3 =>
-      /* get next position */
       let pos' = pos + offset;
-      /* mutate the array, increasing current offset by 1 */
       stack[pos] = offset - 1;
-      /* go to the next position */
       jump(stack, pos', step + 1)
     | offset =>
-      /* get next position */
       let pos' = pos + offset;
-      /* mutate the array, increasing current offset by 1 */
       stack[pos] = offset + 1;
-      /* go to the next position */
       jump(stack, pos', step + 1)
     };
   let solve = (instructions) => {
