@@ -15,15 +15,37 @@ let rec solver = (digits, len, step, xPos, total) => {
   }
 };
 
-let neighbor = (input) => {
-  let step = 1;
-  let digits = explode(input);
-  solver(digits, Array.length(digits), step, 0, 0)
+module Part1 = {
+  type input = string;
+  type answer = int;
+  let cases = [("1122", 3), ("1111", 4), ("1234", 0), ("91212129", 9)];
+  let solve = (input) => {
+    let step = 1;
+    let digits = explode(input);
+    solver(digits, Array.length(digits), step, 0, 0)
+  };
 };
 
-let halfway = (input) => {
-  let len = String.length(input);
-  let step = len / 2;
-  let digits = explode(input);
-  solver(digits, len, step, 0, 0)
+module Part1Test = Utils.Test(Part1);
+
+module Part2 = {
+  type input = string;
+  type answer = int;
+  let cases = [("1212", 6), ("1221", 0), ("123425", 4), ("123123", 12), ("12131415", 4)];
+  let solve = (input) => {
+    let len = String.length(input);
+    let step = len / 2;
+    let digits = explode(input);
+    solver(digits, len, step, 0, 0)
+  };
 };
+
+module Part2Test = Utils.Test(Part2);
+
+let neighbor = Part1.solve;
+
+let test_neighbor = Part1Test.check;
+
+let halfway = Part2.solve;
+
+let test_halfway = Part2Test.check;
