@@ -5,6 +5,7 @@ var List                    = require("bs-platform/lib/js/list.js");
 var $$Array                 = require("bs-platform/lib/js/array.js");
 var Caml_int32              = require("bs-platform/lib/js/caml_int32.js");
 var Caml_format             = require("bs-platform/lib/js/caml_format.js");
+var Utils$Advent2017        = require("./Utils.bs.js");
 var Caml_builtin_exceptions = require("bs-platform/lib/js/caml_builtin_exceptions.js");
 
 function splitLines(input) {
@@ -12,13 +13,21 @@ function splitLines(input) {
 }
 
 function splitDigits(line) {
-  return $$Array.to_list($$Array.map(Caml_format.caml_int_of_string, line.split("\t")));
+  return $$Array.to_list($$Array.map(Caml_format.caml_int_of_string, line.split(" ")));
 }
 
 function debug(input) {
   console.log(input);
   return input;
 }
+
+var cases = /* :: */[
+  /* tuple */[
+    "5 1 9 5\n7 5 3\n2 4 6 8",
+    18
+  ],
+  /* [] */0
+];
 
 function minMax(param, z) {
   var y = param[1];
@@ -58,11 +67,31 @@ function lineMinMax(line) {
   }
 }
 
-function part1(input) {
+function solve(input) {
   return List.fold_left((function (total, param) {
                 return (total + param[0] | 0) - param[1] | 0;
               }), 0, List.map(lineMinMax, List.map(splitDigits, $$Array.to_list(input.split("\n")))));
 }
+
+var Part1 = /* module */[
+  /* cases */cases,
+  /* minMax */minMax,
+  /* lineMinMax */lineMinMax,
+  /* solve */solve
+];
+
+var Part1Test = Utils$Advent2017.Test([
+      cases,
+      solve
+    ]);
+
+var cases$1 = /* :: */[
+  /* tuple */[
+    "5 9 2 8\n9 4 7 3\n3 8 6 5",
+    9
+  ],
+  /* [] */0
+];
 
 function hasDivisor(n, _digits) {
   while(true) {
@@ -114,19 +143,41 @@ function divisors(_digits) {
   };
 }
 
-function part2(input) {
+function solve$1(input) {
   return List.fold_left((function (total, param) {
                 return total + Caml_int32.div(param[0], param[1]) | 0;
               }), 0, List.map(divisors, List.map(splitDigits, $$Array.to_list(input.split("\n")))));
 }
 
+var Part2 = /* module */[
+  /* cases */cases$1,
+  /* hasDivisor */hasDivisor,
+  /* divisors */divisors,
+  /* solve */solve$1
+];
+
+var Part2Test = Utils$Advent2017.Test([
+      cases$1,
+      solve$1
+    ]);
+
+var test_part1 = Part1Test[/* check */0];
+
+var test_part2 = Part2Test[/* check */0];
+
+var part1 = solve;
+
+var part2 = solve$1;
+
 exports.splitLines  = splitLines;
 exports.splitDigits = splitDigits;
 exports.debug       = debug;
-exports.minMax      = minMax;
-exports.lineMinMax  = lineMinMax;
+exports.Part1       = Part1;
+exports.Part1Test   = Part1Test;
+exports.Part2       = Part2;
+exports.Part2Test   = Part2Test;
 exports.part1       = part1;
-exports.hasDivisor  = hasDivisor;
-exports.divisors    = divisors;
+exports.test_part1  = test_part1;
 exports.part2       = part2;
-/* No side effect */
+exports.test_part2  = test_part2;
+/* Part1Test Not a pure module */
