@@ -20,6 +20,7 @@ function runTest(file) {
     const testPath = `${splitByFolders.slice(0, -1).join("/")}/tests/${moduleName}Test.bs`;
     const testModule = nullableRequire(testPath);
     if (testModule) {
+      console.log(`-----------------------------------------`);
       console.log(`Running tests for ${capitalizedName}...`)
       Object.keys(testModule).forEach(key => {
         // assume `check` fn is first element in the module
@@ -29,13 +30,16 @@ function runTest(file) {
             return true;
           }
           const [input, expected, output] = solutionUtils.failureToJs(result);
-          throw `${key} :
-  For case ${JSON.stringify(input)}
-  - got ${JSON.stringify(output)}
-  - expected ${JSON.stringify(expected)}`;
+          console.log(`${key} : Fail
+    For case ${JSON.stringify(input)}
+    - got ${JSON.stringify(output)}
+    - expected ${JSON.stringify(expected)}
+-----------------------------------------`)
+          throw new Error("Test case failed");
         });
-        console.log(`${key} : ${pass ? "Pass" : "Fail"} `);
+        console.log(`${key} : Pass`);
       });
+      console.log(`-----------------------------------------`);
     }
   }
 }

@@ -19,5 +19,9 @@
   "refmt": 3,
   "js-post-build": {
     "cmd": "/usr/local/bin/node ../../postBuild.js"
+  },
+  "warnings": {
+    "number": "-44-102",
+    "error": "+5"
   }
 }
