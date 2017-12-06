@@ -1,10 +1,10 @@
-let max = (list) => {
+let max = (numbers) => {
   let (max, index, _) =
-    List.fold_left(
+    Array.fold_left(
       ((curMax, lastMaxIndex, index), n: int) =>
         curMax >= n ? (curMax, lastMaxIndex, index + 1) : (n, index, index + 1),
-      (List.hd(list), 0, 0),
-      list
+      (numbers[0], 0, 0),
+      numbers
     );
   (max, index)
 };
@@ -42,7 +42,7 @@ let zeroIndex = (index, array) => {
 
 let detectRepeat = (allocations, newAllocation) => {
   let (repeatIndex, _) =
-    List.fold_left(
+    Array.fold_left(
       ((repeat, index), oldAllocation) =>
         if (oldAllocation == newAllocation) {
           (index, index + 1)
@@ -61,13 +61,12 @@ let detectRepeat = (allocations, newAllocation) => {
 
 let rec cycle = (banks, allocations) => {
   let (blocks, maxIndex) = max(banks);
-  let newAllocation =
-    Array.to_list(reallocate(zeroIndex(maxIndex, Array.of_list(banks)), blocks, maxIndex + 1));
+  let newAllocation = reallocate(zeroIndex(maxIndex, banks), blocks, maxIndex + 1);
   let (isRepeat, repeatIndex) = detectRepeat(allocations, newAllocation);
   if (isRepeat) {
     (allocations, repeatIndex)
   } else {
-    cycle(newAllocation, [newAllocation, ...allocations])
+    cycle(newAllocation, Array.concat([[|newAllocation|], allocations]))
   }
 };
 
@@ -76,8 +75,9 @@ module Part1 = {
   type answer = int;
   let cases = [("0 2 7 0", 5)];
   let solve = (input) => {
-    let banks = Js.String.split(" ", input) |> Array.map(int_of_string) |> Array.to_list;
-    List.length(fst(cycle(banks, [banks])))
+    let banks = Js.String.split(" ", input) |> Array.map(int_of_string);
+    let (allocations, _) = cycle(banks, [|banks|]);
+    Array.length(allocations)
   };
 };
 
@@ -86,8 +86,8 @@ module Part2 = {
   type answer = int;
   let cases = [("0 2 7 0", 4)];
   let solve = (input) => {
-    let banks = Js.String.split(" ", input) |> Array.map(int_of_string) |> Array.to_list;
-    let (_, repeatIndex) = cycle(banks, [banks]);
+    let banks = Js.String.split(" ", input) |> Array.map(int_of_string);
+    let (_, repeatIndex) = cycle(banks, [|banks|]);
     repeatIndex + 1
   };
 };
