@@ -3,7 +3,7 @@
 
 var List        = require("bs-platform/lib/js/list.js");
 var $$Array     = require("bs-platform/lib/js/array.js");
-var Js_boolean  = require("bs-platform/lib/js/js_boolean.js");
+var Caml_array  = require("bs-platform/lib/js/caml_array.js");
 var Pervasives  = require("bs-platform/lib/js/pervasives.js");
 var Caml_format = require("bs-platform/lib/js/caml_format.js");
 
@@ -51,63 +51,36 @@ function print_list(_list) {
   };
 }
 
-function reallocate(banks, index, blocksToAllocate) {
-  return List.fold_left((function (param, blocks) {
-                  var curIndex = param[2];
-                  var blocksLeft = param[1];
-                  var banks = param[0];
-                  console.log(/* tuple */[
-                        blocks,
-                        Js_boolean.to_js_boolean(+(curIndex === index)),
-                        Js_boolean.to_js_boolean(+(blocksLeft > 0)),
-                        blocks + 1 | 0
-                      ]);
-                  var match = +(curIndex === index);
-                  var match$1 = +(blocksLeft > 0);
-                  if (match !== 0) {
-                    if (match$1 !== 0) {
-                      return /* tuple */[
-                              /* :: */[
-                                1,
-                                banks
-                              ],
-                              blocksLeft - 1 | 0,
-                              curIndex + 1 | 0
-                            ];
-                    } else {
-                      return /* tuple */[
-                              /* :: */[
-                                0,
-                                banks
-                              ],
-                              blocksLeft,
-                              curIndex + 1 | 0
-                            ];
-                    }
-                  } else if (match$1 !== 0) {
-                    return /* tuple */[
-                            /* :: */[
-                              blocks + 1 | 0,
-                              banks
-                            ],
-                            blocksLeft - 1 | 0,
-                            curIndex + 1 | 0
-                          ];
-                  } else {
-                    return /* tuple */[
-                            /* :: */[
-                              blocks,
-                              banks
-                            ],
-                            blocksLeft,
-                            curIndex + 1 | 0
-                          ];
-                  }
-                }), /* tuple */[
-                /* [] */0,
-                blocksToAllocate,
-                0
-              ], banks)[0];
+function reallocate(_banks, _blocksToAllocate, _start) {
+  while(true) {
+    var start = _start;
+    var blocksToAllocate = _blocksToAllocate;
+    var banks = _banks;
+    var newAllocation = $$Array.copy(banks);
+    var blocksLeft = blocksToAllocate;
+    for(var index = start ,index_finish = newAllocation.length - 1 | 0; index <= index_finish; ++index){
+      if (blocksLeft > 0) {
+        Caml_array.caml_array_set(newAllocation, index, Caml_array.caml_array_get(newAllocation, index) + 1 | 0);
+        blocksLeft = blocksLeft - 1 | 0;
+      }
+      
+    }
+    if (blocksLeft > 0) {
+      _start = 0;
+      _blocksToAllocate = blocksLeft;
+      _banks = newAllocation;
+      continue ;
+      
+    } else {
+      return newAllocation;
+    }
+  };
+}
+
+function zeroIndex(index, array) {
+  var newArr = $$Array.copy(array);
+  Caml_array.caml_array_set(newArr, index, 0);
+  return newArr;
 }
 
 function cycle(_banks, _allocations) {
@@ -115,8 +88,8 @@ function cycle(_banks, _allocations) {
     var allocations = _allocations;
     var banks = _banks;
     var match = max(banks);
-    print_list(banks);
-    var newAllocation = reallocate(banks, match[1], match[0]);
+    var maxIndex = match[1];
+    var newAllocation = $$Array.to_list(reallocate(zeroIndex(maxIndex, $$Array.of_list(banks)), match[0], maxIndex + 1 | 0));
     var isRepeat = List.exists((function(newAllocation){
         return function (oldAllocation) {
           return List.for_all2((function (a, b) {
@@ -125,7 +98,7 @@ function cycle(_banks, _allocations) {
         }
         }(newAllocation)), allocations);
     if (isRepeat) {
-      return List.length(allocations);
+      return List.length(allocations) + 1 | 0;
     } else {
       _allocations = /* :: */[
         newAllocation,
@@ -154,6 +127,7 @@ var Part1_000 = /* cases : :: */[
 var Part1 = /* module */[
   Part1_000,
   /* reallocate */reallocate,
+  /* zeroIndex */zeroIndex,
   /* cycle */cycle,
   /* solve */solve
 ];
@@ -167,8 +141,11 @@ var Part2 = /* module */[
   /* solve */solve$1
 ];
 
+var part1 = solve;
+
 exports.max        = max;
 exports.print_list = print_list;
 exports.Part1      = Part1;
 exports.Part2      = Part2;
+exports.part1      = part1;
 /* No side effect */

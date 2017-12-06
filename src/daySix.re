@@ -22,39 +22,37 @@ module Part1 = {
   type input = string;
   type answer = int;
   let cases = [("0 2 7 0", 5)];
-  let reallocate = (banks, index, blocksToAllocate) => {
-    let (allocation, _, _) =
-      List.fold_left(
-        ((banks, blocksLeft, curIndex), blocks) => {
-          Js.log((
-            blocks,
-            Js.Boolean.to_js_boolean(curIndex == index),
-            Js.Boolean.to_js_boolean(blocksLeft > 0),
-            blocks + 1
-          ));
-          switch (curIndex == index, blocksLeft > 0) {
-          | (true, true) => ([1, ...banks], blocksLeft - 1, curIndex + 1)
-          | (true, false) => ([0, ...banks], blocksLeft, curIndex + 1)
-          | (false, false) => ([blocks, ...banks], blocksLeft, curIndex + 1)
-          | (false, true) => ([blocks + 1, ...banks], blocksLeft - 1, curIndex + 1)
-          }
-        },
-        ([], blocksToAllocate, 0),
-        banks
-      );
-    allocation
+  let rec reallocate = (banks, blocksToAllocate, start) => {
+    let newAllocation = Array.copy(banks);
+    let blocksLeft = ref(blocksToAllocate);
+    for (index in start to Array.length(newAllocation) - 1) {
+      if (blocksLeft^ > 0) {
+        newAllocation[index] = newAllocation[index] + 1;
+        blocksLeft := blocksLeft^ - 1
+      }
+    };
+    if (blocksLeft^ > 0) {
+      reallocate(newAllocation, blocksLeft^, 0)
+    } else {
+      newAllocation
+    }
+  };
+  let zeroIndex = (index, array) => {
+    let newArr = Array.copy(array);
+    newArr[index] = 0;
+    newArr
   };
   let rec cycle = (banks, allocations) => {
-    let (blocks, bankIndex) = max(banks);
-    print_list(banks);
-    let newAllocation = reallocate(banks, bankIndex, blocks);
+    let (blocks, maxIndex) = max(banks);
+    let newAllocation =
+      Array.to_list(reallocate(zeroIndex(maxIndex, Array.of_list(banks)), blocks, maxIndex + 1));
     let isRepeat =
       List.exists(
         (oldAllocation) => List.for_all2((a, b) => a == b, newAllocation, oldAllocation),
         allocations
       );
     if (isRepeat) {
-      List.length(allocations)
+      List.length(allocations) + 1
     } else {
       cycle(newAllocation, [newAllocation, ...allocations])
     }
@@ -71,3 +69,5 @@ module Part2 = {
   let cases = [];
   let solve = (_string) => 0;
 };
+
+let part1 = Part1.solve;
