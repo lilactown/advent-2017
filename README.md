@@ -17,7 +17,6 @@ undefined
 Tests are located in the `src/tests` directory; they are automatically generated using the `Utils.Test` functor and are based on the `cases` binding found in each solution module. The tests run automatically on compiling.
 
 
-```
 
 # Build
 ```
