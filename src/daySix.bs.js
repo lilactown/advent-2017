@@ -3,6 +3,7 @@
 
 var List        = require("bs-platform/lib/js/list.js");
 var $$Array     = require("bs-platform/lib/js/array.js");
+var Caml_obj    = require("bs-platform/lib/js/caml_obj.js");
 var Caml_array  = require("bs-platform/lib/js/caml_array.js");
 var Pervasives  = require("bs-platform/lib/js/pervasives.js");
 var Caml_format = require("bs-platform/lib/js/caml_format.js");
@@ -83,6 +84,38 @@ function zeroIndex(index, array) {
   return newArr;
 }
 
+function detectRepeat(allocations, newAllocation) {
+  var match = List.fold_left((function (param, oldAllocation) {
+          var index = param[1];
+          if (Caml_obj.caml_equal(oldAllocation, newAllocation)) {
+            return /* tuple */[
+                    index,
+                    index + 1 | 0
+                  ];
+          } else {
+            return /* tuple */[
+                    param[0],
+                    index + 1 | 0
+                  ];
+          }
+        }), /* tuple */[
+        -1,
+        0
+      ], allocations);
+  var repeatIndex = match[0];
+  if (repeatIndex > -1) {
+    return /* tuple */[
+            /* true */1,
+            repeatIndex
+          ];
+  } else {
+    return /* tuple */[
+            /* false */0,
+            repeatIndex
+          ];
+  }
+}
+
 function cycle(_banks, _allocations) {
   while(true) {
     var allocations = _allocations;
@@ -90,15 +123,12 @@ function cycle(_banks, _allocations) {
     var match = max(banks);
     var maxIndex = match[1];
     var newAllocation = $$Array.to_list(reallocate(zeroIndex(maxIndex, $$Array.of_list(banks)), match[0], maxIndex + 1 | 0));
-    var isRepeat = List.exists((function(newAllocation){
-        return function (oldAllocation) {
-          return List.for_all2((function (a, b) {
-                        return +(a === b);
-                      }), newAllocation, oldAllocation);
-        }
-        }(newAllocation)), allocations);
-    if (isRepeat) {
-      return List.length(allocations) + 1 | 0;
+    var match$1 = detectRepeat(allocations, newAllocation);
+    if (match$1[0]) {
+      return /* tuple */[
+              allocations,
+              match$1[1]
+            ];
     } else {
       _allocations = /* :: */[
         newAllocation,
@@ -113,7 +143,10 @@ function cycle(_banks, _allocations) {
 
 function solve(input) {
   var banks = $$Array.to_list($$Array.map(Caml_format.caml_int_of_string, input.split(" ")));
-  return cycle(banks, /* [] */0);
+  return List.length(cycle(banks, /* :: */[
+                    banks,
+                    /* [] */0
+                  ])[0]);
 }
 
 var Part1_000 = /* cases : :: */[
@@ -126,26 +159,43 @@ var Part1_000 = /* cases : :: */[
 
 var Part1 = /* module */[
   Part1_000,
-  /* reallocate */reallocate,
-  /* zeroIndex */zeroIndex,
-  /* cycle */cycle,
   /* solve */solve
 ];
 
-function solve$1() {
-  return 0;
+function solve$1(input) {
+  var banks = $$Array.to_list($$Array.map(Caml_format.caml_int_of_string, input.split(" ")));
+  var match = cycle(banks, /* :: */[
+        banks,
+        /* [] */0
+      ]);
+  return match[1] + 1 | 0;
 }
 
+var Part2_000 = /* cases : :: */[
+  /* tuple */[
+    "0 2 7 0",
+    4
+  ],
+  /* [] */0
+];
+
 var Part2 = /* module */[
-  /* cases : [] */0,
+  Part2_000,
   /* solve */solve$1
 ];
 
 var part1 = solve;
 
-exports.max        = max;
-exports.print_list = print_list;
-exports.Part1      = Part1;
-exports.Part2      = Part2;
-exports.part1      = part1;
+var part2 = solve$1;
+
+exports.max          = max;
+exports.print_list   = print_list;
+exports.reallocate   = reallocate;
+exports.zeroIndex    = zeroIndex;
+exports.detectRepeat = detectRepeat;
+exports.cycle        = cycle;
+exports.Part1        = Part1;
+exports.Part2        = Part2;
+exports.part1        = part1;
+exports.part2        = part2;
 /* No side effect */

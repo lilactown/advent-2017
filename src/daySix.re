@@ -18,56 +18,80 @@ let rec print_list = (list) =>
     print_list(tl)
   };
 
+let rec reallocate = (banks, blocksToAllocate, start) => {
+  let newAllocation = Array.copy(banks);
+  let blocksLeft = ref(blocksToAllocate);
+  for (index in start to Array.length(newAllocation) - 1) {
+    if (blocksLeft^ > 0) {
+      newAllocation[index] = newAllocation[index] + 1;
+      blocksLeft := blocksLeft^ - 1
+    }
+  };
+  if (blocksLeft^ > 0) {
+    reallocate(newAllocation, blocksLeft^, 0)
+  } else {
+    newAllocation
+  }
+};
+
+let zeroIndex = (index, array) => {
+  let newArr = Array.copy(array);
+  newArr[index] = 0;
+  newArr
+};
+
+let detectRepeat = (allocations, newAllocation) => {
+  let (repeatIndex, _) =
+    List.fold_left(
+      ((repeat, index), oldAllocation) =>
+        if (oldAllocation == newAllocation) {
+          (index, index + 1)
+        } else {
+          (repeat, index + 1)
+        },
+      ((-1), 0),
+      allocations
+    );
+  if (repeatIndex > (-1)) {
+    (true, repeatIndex)
+  } else {
+    (false, repeatIndex)
+  }
+};
+
+let rec cycle = (banks, allocations) => {
+  let (blocks, maxIndex) = max(banks);
+  let newAllocation =
+    Array.to_list(reallocate(zeroIndex(maxIndex, Array.of_list(banks)), blocks, maxIndex + 1));
+  let (isRepeat, repeatIndex) = detectRepeat(allocations, newAllocation);
+  if (isRepeat) {
+    (allocations, repeatIndex)
+  } else {
+    cycle(newAllocation, [newAllocation, ...allocations])
+  }
+};
+
 module Part1 = {
   type input = string;
   type answer = int;
   let cases = [("0 2 7 0", 5)];
-  let rec reallocate = (banks, blocksToAllocate, start) => {
-    let newAllocation = Array.copy(banks);
-    let blocksLeft = ref(blocksToAllocate);
-    for (index in start to Array.length(newAllocation) - 1) {
-      if (blocksLeft^ > 0) {
-        newAllocation[index] = newAllocation[index] + 1;
-        blocksLeft := blocksLeft^ - 1
-      }
-    };
-    if (blocksLeft^ > 0) {
-      reallocate(newAllocation, blocksLeft^, 0)
-    } else {
-      newAllocation
-    }
-  };
-  let zeroIndex = (index, array) => {
-    let newArr = Array.copy(array);
-    newArr[index] = 0;
-    newArr
-  };
-  let rec cycle = (banks, allocations) => {
-    let (blocks, maxIndex) = max(banks);
-    let newAllocation =
-      Array.to_list(reallocate(zeroIndex(maxIndex, Array.of_list(banks)), blocks, maxIndex + 1));
-    let isRepeat =
-      List.exists(
-        (oldAllocation) => List.for_all2((a, b) => a == b, newAllocation, oldAllocation),
-        allocations
-      );
-    if (isRepeat) {
-      List.length(allocations) + 1
-    } else {
-      cycle(newAllocation, [newAllocation, ...allocations])
-    }
-  };
   let solve = (input) => {
     let banks = Js.String.split(" ", input) |> Array.map(int_of_string) |> Array.to_list;
-    cycle(banks, [])
+    List.length(fst(cycle(banks, [banks])))
   };
 };
 
 module Part2 = {
   type input = string;
   type answer = int;
-  let cases = [];
-  let solve = (_string) => 0;
+  let cases = [("0 2 7 0", 4)];
+  let solve = (input) => {
+    let banks = Js.String.split(" ", input) |> Array.map(int_of_string) |> Array.to_list;
+    let (_, repeatIndex) = cycle(banks, [banks]);
+    repeatIndex + 1
+  };
 };
 
 let part1 = Part1.solve;
+
+let part2 = Part2.solve;

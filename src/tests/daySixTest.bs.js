@@ -4,10 +4,7 @@
 var DaySix$Advent2017   = require("../daySix.bs.js");
 var Solution$Advent2017 = require("../solution.bs.js");
 
-var Part1Test = Solution$Advent2017.Make([
-      DaySix$Advent2017.Part1[0],
-      DaySix$Advent2017.Part1[4]
-    ]);
+var Part1Test = Solution$Advent2017.Make(DaySix$Advent2017.Part1);
 
 var Part2Test = Solution$Advent2017.Make(DaySix$Advent2017.Part2);
 
