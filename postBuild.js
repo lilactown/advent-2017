@@ -1,5 +1,6 @@
 #!/usr/local/bin/node
 const file = process.argv[2];
+const solutionUtils = require('./src/solution.bs');
 
 function nullableRequire(path) {
   try {
@@ -18,14 +19,22 @@ function runTest(file) {
   if (folder !== "tests") { // ignore tests dir
     const testPath = `${splitByFolders.slice(0, -1).join("/")}/tests/${moduleName}Test.bs`;
     const testModule = nullableRequire(testPath);
-    if (testModule){
+    if (testModule) {
       console.log(`Running tests for ${capitalizedName}...`)
       Object.keys(testModule).forEach(key => {
-        const result = testModule[key][0]();
-        console.log(`${key} : ${result ? "Pass" : "Fail"}`);
-        if (!result) {
-          throw `${key} did not pass`;
-        }
+        // assume `check` fn is first element in the module
+        const results = solutionUtils.checkSolution(testModule[key]);
+        const pass = results.every((result) => {
+          if (solutionUtils.resultToBool(result)) {
+            return true;
+          }
+          const [input, expected, output] = solutionUtils.failureToJs(result);
+          throw `${key} :
+  For case ${JSON.stringify(input)}
+  - got ${JSON.stringify(output)}
+  - expected ${JSON.stringify(expected)}`;
+        });
+        console.log(`${key} : ${pass ? "Pass" : "Fail"} `);
       });
     }
   }
