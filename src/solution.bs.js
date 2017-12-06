@@ -6,7 +6,7 @@ var Curry      = require("bs-platform/lib/js/curry.js");
 var Caml_obj   = require("bs-platform/lib/js/caml_obj.js");
 var Js_boolean = require("bs-platform/lib/js/js_boolean.js");
 
-function Test(S) {
+function Make(S) {
   var check = function () {
     return Js_boolean.to_js_boolean(List.for_all((function (v) {
                       return v;
@@ -17,5 +17,5 @@ function Test(S) {
   return /* module */[/* check */check];
 }
 
-exports.Test = Test;
+exports.Make = Make;
 /* No side effect */

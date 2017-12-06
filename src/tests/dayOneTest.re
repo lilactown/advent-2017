@@ -1,3 +1,3 @@
-module Part1Test = Utils.Test(DayOne.Part1);
+module Part1Test = Solution.Make(DayOne.Part1);
 
-module Part2Test = Utils.Test(DayOne.Part2);
+module Part2Test = Solution.Make(DayOne.Part2);
