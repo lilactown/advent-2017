@@ -4,7 +4,8 @@
   "name": "advent-2017",
   "version": "0.1.0",
   "sources": [
-    "src"
+    "src",
+    "src/tests"
   ],
   "package-specs": {
     "module": "commonjs",
