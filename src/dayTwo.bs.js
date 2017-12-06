@@ -5,7 +5,6 @@ var List                    = require("bs-platform/lib/js/list.js");
 var $$Array                 = require("bs-platform/lib/js/array.js");
 var Caml_int32              = require("bs-platform/lib/js/caml_int32.js");
 var Caml_format             = require("bs-platform/lib/js/caml_format.js");
-var Utils$Advent2017        = require("./Utils.bs.js");
 var Caml_builtin_exceptions = require("bs-platform/lib/js/caml_builtin_exceptions.js");
 
 function splitLines(input) {
@@ -20,14 +19,6 @@ function debug(input) {
   console.log(input);
   return input;
 }
-
-var cases = /* :: */[
-  /* tuple */[
-    "5 1 9 5\n7 5 3\n2 4 6 8",
-    18
-  ],
-  /* [] */0
-];
 
 function minMax(param, z) {
   var y = param[1];
@@ -73,24 +64,19 @@ function solve(input) {
               }), 0, List.map(lineMinMax, List.map(splitDigits, $$Array.to_list(input.split("\n")))));
 }
 
+var Part1_000 = /* cases : :: */[
+  /* tuple */[
+    "5 1 9 5\n7 5 3\n2 4 6 8",
+    18
+  ],
+  /* [] */0
+];
+
 var Part1 = /* module */[
-  /* cases */cases,
+  Part1_000,
   /* minMax */minMax,
   /* lineMinMax */lineMinMax,
   /* solve */solve
-];
-
-var Part1Test = Utils$Advent2017.Test([
-      cases,
-      solve
-    ]);
-
-var cases$1 = /* :: */[
-  /* tuple */[
-    "5 9 2 8\n9 4 7 3\n3 8 6 5",
-    9
-  ],
-  /* [] */0
 ];
 
 function hasDivisor(n, _digits) {
@@ -149,21 +135,20 @@ function solve$1(input) {
               }), 0, List.map(divisors, List.map(splitDigits, $$Array.to_list(input.split("\n")))));
 }
 
+var Part2_000 = /* cases : :: */[
+  /* tuple */[
+    "5 9 2 8\n9 4 7 3\n3 8 6 5",
+    9
+  ],
+  /* [] */0
+];
+
 var Part2 = /* module */[
-  /* cases */cases$1,
+  Part2_000,
   /* hasDivisor */hasDivisor,
   /* divisors */divisors,
   /* solve */solve$1
 ];
-
-var Part2Test = Utils$Advent2017.Test([
-      cases$1,
-      solve$1
-    ]);
-
-var test_part1 = Part1Test[/* check */0];
-
-var test_part2 = Part2Test[/* check */0];
 
 var part1 = solve;
 
@@ -173,11 +158,7 @@ exports.splitLines  = splitLines;
 exports.splitDigits = splitDigits;
 exports.debug       = debug;
 exports.Part1       = Part1;
-exports.Part1Test   = Part1Test;
 exports.Part2       = Part2;
-exports.Part2Test   = Part2Test;
 exports.part1       = part1;
-exports.test_part1  = test_part1;
 exports.part2       = part2;
-exports.test_part2  = test_part2;
-/* Part1Test Not a pure module */
+/* No side effect */

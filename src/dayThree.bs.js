@@ -6,38 +6,11 @@ var Block                   = require("bs-platform/lib/js/block.js");
 var Curry                   = require("bs-platform/lib/js/curry.js");
 var Js_exn                  = require("bs-platform/lib/js/js_exn.js");
 var Caml_array              = require("bs-platform/lib/js/caml_array.js");
-var Utils$Advent2017        = require("./Utils.bs.js");
 var Caml_builtin_exceptions = require("bs-platform/lib/js/caml_builtin_exceptions.js");
 
 function abs(prim) {
   return Math.abs(prim);
 }
-
-var cases = /* :: */[
-  /* tuple */[
-    1,
-    0
-  ],
-  /* :: */[
-    /* tuple */[
-      12,
-      3
-    ],
-    /* :: */[
-      /* tuple */[
-        23,
-        2
-      ],
-      /* :: */[
-        /* tuple */[
-          1024,
-          31
-        ],
-        /* [] */0
-      ]
-    ]
-  ]
-];
 
 function spiral(n) {
   var _x = 0;
@@ -84,17 +57,38 @@ function solve(n) {
   return distance(spiral(n));
 }
 
+var Part1_000 = /* cases : :: */[
+  /* tuple */[
+    1,
+    0
+  ],
+  /* :: */[
+    /* tuple */[
+      12,
+      3
+    ],
+    /* :: */[
+      /* tuple */[
+        23,
+        2
+      ],
+      /* :: */[
+        /* tuple */[
+          1024,
+          31
+        ],
+        /* [] */0
+      ]
+    ]
+  ]
+];
+
 var Part1 = /* module */[
-  /* cases */cases,
+  Part1_000,
   /* spiral */spiral,
   /* distance */distance,
   /* solve */solve
 ];
-
-var Part1Test = Utils$Advent2017.Test([
-      cases,
-      solve
-    ]);
 
 function makeGrid(n) {
   var d = n / 2 | 0;
@@ -228,27 +222,17 @@ var Part2 = /* module */[
   /* solve */solve$1
 ];
 
-var test_part1 = Part1Test[/* check */0];
-
-var Part2Test = Utils$Advent2017.Test(Part2);
-
-var test_part2 = Part2Test[/* check */0];
-
 var part1 = solve;
 
 var part2 = solve$1;
 
 exports.abs             = abs;
 exports.Part1           = Part1;
-exports.Part1Test       = Part1Test;
 exports.makeGrid        = makeGrid;
 exports.get             = get;
 exports.set             = set;
 exports.spiralNeighbors = spiralNeighbors;
 exports.Part2           = Part2;
 exports.part1           = part1;
-exports.test_part1      = test_part1;
 exports.part2           = part2;
-exports.Part2Test       = Part2Test;
-exports.test_part2      = test_part2;
-/* Part1Test Not a pure module */
+/* No side effect */

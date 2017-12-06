@@ -38,8 +38,6 @@ module Part1 = {
   let solve = (n) => distance(spiral(n));
 };
 
-module Part1Test = Utils.Test(Part1);
-
 /**
  * For part two, I created an actual grid. I allow
  * coordinates to be placed inside of it for ease of
@@ -110,10 +108,4 @@ module Part2 = {
 
 let part1 = Part1.solve;
 
-let test_part1 = Part1Test.check;
-
 let part2 = Part2.solve;
-
-module Part2Test = Utils.Test(Part2);
-
-let test_part2 = Part2Test.check;

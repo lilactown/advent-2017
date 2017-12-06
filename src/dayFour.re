@@ -14,8 +14,6 @@ module Part1 = {
     );
 };
 
-module Part1Test = Utils.Test(Part1);
-
 module Part2 = {
   type input = string;
   type answer = int;
@@ -45,12 +43,6 @@ module Part2 = {
     );
 };
 
-module Part2Test = Utils.Test(Part2);
-
 let part1 = Part1.solve;
 
-let test_part1 = Part1Test.check;
-
 let part2 = Part2.solve;
-
-let test_part2 = Part2Test.check;
