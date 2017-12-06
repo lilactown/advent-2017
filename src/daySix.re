@@ -9,15 +9,6 @@ let max = (numbers) => {
   (max, index)
 };
 
-let rec print_list = (list) =>
-  switch list {
-  | [] => print_newline()
-  | [hd, ...tl] =>
-    print_int(hd);
-    print_char(' ');
-    print_list(tl)
-  };
-
 let rec reallocate = (banks, blocksToAllocate, start) => {
   let newAllocation = Array.copy(banks);
   let blocksLeft = ref(blocksToAllocate);

@@ -4,7 +4,6 @@
 var $$Array     = require("bs-platform/lib/js/array.js");
 var Caml_obj    = require("bs-platform/lib/js/caml_obj.js");
 var Caml_array  = require("bs-platform/lib/js/caml_array.js");
-var Pervasives  = require("bs-platform/lib/js/pervasives.js");
 var Caml_format = require("bs-platform/lib/js/caml_format.js");
 
 function max(numbers) {
@@ -34,21 +33,6 @@ function max(numbers) {
           match[0],
           match[1]
         ];
-}
-
-function print_list(_list) {
-  while(true) {
-    var list = _list;
-    if (list) {
-      Pervasives.print_int(list[0]);
-      Pervasives.print_char(/* " " */32);
-      _list = list[1];
-      continue ;
-      
-    } else {
-      return Pervasives.print_newline(/* () */0);
-    }
-  };
 }
 
 function reallocate(_banks, _blocksToAllocate, _start) {
@@ -186,7 +170,6 @@ var part1 = solve;
 var part2 = solve$1;
 
 exports.max          = max;
-exports.print_list   = print_list;
 exports.reallocate   = reallocate;
 exports.zeroIndex    = zeroIndex;
 exports.detectRepeat = detectRepeat;
