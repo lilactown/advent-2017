@@ -35,32 +35,6 @@ function max(numbers) {
         ];
 }
 
-function reallocate(_banks, _blocksToAllocate, _start) {
-  while(true) {
-    var start = _start;
-    var blocksToAllocate = _blocksToAllocate;
-    var banks = _banks;
-    var newAllocation = $$Array.copy(banks);
-    var blocksLeft = blocksToAllocate;
-    for(var index = start ,index_finish = newAllocation.length - 1 | 0; index <= index_finish; ++index){
-      if (blocksLeft > 0) {
-        Caml_array.caml_array_set(newAllocation, index, Caml_array.caml_array_get(newAllocation, index) + 1 | 0);
-        blocksLeft = blocksLeft - 1 | 0;
-      }
-      
-    }
-    if (blocksLeft > 0) {
-      _start = 0;
-      _blocksToAllocate = blocksLeft;
-      _banks = newAllocation;
-      continue ;
-      
-    } else {
-      return newAllocation;
-    }
-  };
-}
-
 function zeroIndex(index, array) {
   var newArr = $$Array.copy(array);
   Caml_array.caml_array_set(newArr, index, 0);
@@ -97,6 +71,32 @@ function detectRepeat(allocations, newAllocation) {
             repeatIndex
           ];
   }
+}
+
+function reallocate(_banks, _blocksToAllocate, _start) {
+  while(true) {
+    var start = _start;
+    var blocksToAllocate = _blocksToAllocate;
+    var banks = _banks;
+    var newAllocation = $$Array.copy(banks);
+    var blocksLeft = blocksToAllocate;
+    for(var index = start ,index_finish = newAllocation.length - 1 | 0; index <= index_finish; ++index){
+      if (blocksLeft > 0) {
+        Caml_array.caml_array_set(newAllocation, index, Caml_array.caml_array_get(newAllocation, index) + 1 | 0);
+        blocksLeft = blocksLeft - 1 | 0;
+      }
+      
+    }
+    if (blocksLeft > 0) {
+      _start = 0;
+      _blocksToAllocate = blocksLeft;
+      _banks = newAllocation;
+      continue ;
+      
+    } else {
+      return newAllocation;
+    }
+  };
 }
 
 function cycle(_banks, _allocations) {
@@ -170,9 +170,9 @@ var part1 = solve;
 var part2 = solve$1;
 
 exports.max          = max;
-exports.reallocate   = reallocate;
 exports.zeroIndex    = zeroIndex;
 exports.detectRepeat = detectRepeat;
+exports.reallocate   = reallocate;
 exports.cycle        = cycle;
 exports.Part1        = Part1;
 exports.Part2        = Part2;

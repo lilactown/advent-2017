@@ -9,22 +9,6 @@ let max = (numbers) => {
   (max, index)
 };
 
-let rec reallocate = (banks, blocksToAllocate, start) => {
-  let newAllocation = Array.copy(banks);
-  let blocksLeft = ref(blocksToAllocate);
-  for (index in start to Array.length(newAllocation) - 1) {
-    if (blocksLeft^ > 0) {
-      newAllocation[index] = newAllocation[index] + 1;
-      blocksLeft := blocksLeft^ - 1
-    }
-  };
-  if (blocksLeft^ > 0) {
-    reallocate(newAllocation, blocksLeft^, 0)
-  } else {
-    newAllocation
-  }
-};
-
 let zeroIndex = (index, array) => {
   let newArr = Array.copy(array);
   newArr[index] = 0;
@@ -47,6 +31,22 @@ let detectRepeat = (allocations, newAllocation) => {
     (true, repeatIndex)
   } else {
     (false, repeatIndex)
+  }
+};
+
+let rec reallocate = (banks, blocksToAllocate, start) => {
+  let newAllocation = Array.copy(banks);
+  let blocksLeft = ref(blocksToAllocate);
+  for (index in start to Array.length(newAllocation) - 1) {
+    if (blocksLeft^ > 0) {
+      newAllocation[index] = newAllocation[index] + 1;
+      blocksLeft := blocksLeft^ - 1
+    }
+  };
+  if (blocksLeft^ > 0) {
+    reallocate(newAllocation, blocksLeft^, 0)
+  } else {
+    newAllocation
   }
 };
 
