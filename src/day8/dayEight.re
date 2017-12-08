@@ -9,34 +9,6 @@ let max = (numbers) => {
   (max, index)
 };
 
-let unwrapRegisterValue = (register) =>
-  switch register {
-  | None => 0
-  | Some(value) => value
-  };
-
-let assertPredicate = (context, register, predicate, amount) => {
-  let value = unwrapRegisterValue(Js.Dict.get(context, register));
-  switch predicate {
-  | ">" => value > amount
-  | "<" => value < amount
-  | ">=" => value >= amount
-  | "<=" => value <= amount
-  | "==" => value == amount
-  | "!=" => value != amount
-  | _ => raise(Failure("Could not parse predicate"))
-  }
-};
-
-let executeOperation = (context, register, op, amount) => {
-  let value = unwrapRegisterValue(Js.Dict.get(context, register));
-  switch op {
-  | "inc" => value + amount
-  | "dec" => value - amount
-  | _ => raise(Failure("Could not parse operation"))
-  }
-};
-
 module Part1: Solution.Solver = {
   /**
    * What is the largest value in any register after completing the instructions in your puzzle input?
@@ -50,7 +22,7 @@ c dec -10 if a >= 1
 c inc -20 if c == 10|}, 1)
   ];
   let solve = (input) => {
-    let context = Js.Dict.empty();
+    let context = CPUInstruction.Context.make();
     Js.String.split("\n", input)
     |> Array.map(Js.String.split(" "))
     |> Array.iter(
@@ -59,16 +31,16 @@ c inc -20 if c == 10|}, 1)
            | [|opReg, op, amt, "if", predReg, pred, predAmt|] =>
              let amount = int_of_string(amt);
              let predAmount = int_of_string(predAmt);
-             if (assertPredicate(context, predReg, pred, predAmount)) {
-               let newValue = executeOperation(context, opReg, op, amount);
-               Js.Dict.set(context, opReg, newValue)
+             if (CPUInstruction.assertPredicate(context, predReg, pred, predAmount)) {
+               let newValue = CPUInstruction.doOp(context, opReg, op, amount);
+               CPUInstruction.Context.set(context, opReg, newValue)
              } else {
                ()
              }
            | _ => raise(Failure("Could not parse instruction"))
            }
        );
-    let (largest, _) = max(Js.Dict.values(context));
+    let (largest, _) = max(CPUInstruction.Context.values(context));
     largest
   };
 };
@@ -88,7 +60,7 @@ c dec -10 if a >= 1
 c inc -20 if c == 10|}, 10)
   ];
   let solve = (input) => {
-    let context = Js.Dict.empty();
+    let context = CPUInstruction.Context.make();
     let max = ref(0);
     Js.String.split("\n", input)
     |> Array.map(Js.String.split(" "))
@@ -98,9 +70,9 @@ c inc -20 if c == 10|}, 10)
            | [|opReg, op, amt, "if", predReg, pred, predAmt|] =>
              let amount = int_of_string(amt);
              let predAmount = int_of_string(predAmt);
-             if (assertPredicate(context, predReg, pred, predAmount)) {
-               let newValue = executeOperation(context, opReg, op, amount);
-               Js.Dict.set(context, opReg, newValue);
+             if (CPUInstruction.assertPredicate(context, predReg, pred, predAmount)) {
+               let newValue = CPUInstruction.doOp(context, opReg, op, amount);
+               CPUInstruction.Context.set(context, opReg, newValue);
                /* This time, for each iteration, we check to see if the new value
                   is greater than the current max.
                   If it's the first line, we set the current max to be it's
