@@ -62,7 +62,7 @@ function fromInput(input) {
                   } else {
                     return /* record */[
                             /* name */name,
-                            /* weight */weight,
+                            /* weight */Caml_format.caml_int_of_string(weight),
                             /* childrenNames */splitNames(line.slice(1))
                           ];
                   }
@@ -108,14 +108,14 @@ function findChildrenDefs(definitions, names) {
               }));
 }
 
-var TowerDefinition = /* module */[
+var Definition = /* module */[
   /* fromInput */fromInput,
   /* findRootDef */findRootDef,
   /* findChildrenDefs */findChildrenDefs
 ];
 
 function weigh(tower) {
-  var match = tower[/* children */3];
+  var match = tower[/* children */2];
   if (match) {
     return tower[/* weight */1] + $$Array.fold_left((function (total, weight) {
                   return total + weight | 0;
@@ -140,23 +140,24 @@ function make(definitions, root) {
     var weights = $$Array.map(weigh, children);
     return /* record */[
             /* name */root[/* name */0],
-            /* weight */Caml_format.caml_int_of_string(root[/* weight */1]),
-            /* isBalanced */isBalanced(weights),
+            /* weight */root[/* weight */1],
             /* children : Some */[children],
-            /* totalWeight */Caml_format.caml_int_of_string(root[/* weight */1]) + sumArray(weights) | 0
+            /* isBalanced */isBalanced(weights),
+            /* totalWeight */root[/* weight */1] + sumArray(weights) | 0
           ];
   } else {
     return /* record */[
             /* name */root[/* name */0],
-            /* weight */Caml_format.caml_int_of_string(root[/* weight */1]),
-            /* isBalanced : true */1,
+            /* weight */root[/* weight */1],
             /* children : None */0,
-            /* totalWeight */Caml_format.caml_int_of_string(root[/* weight */1])
+            /* isBalanced : true */1,
+            /* totalWeight */root[/* weight */1]
           ];
   }
 }
 
 var Tower = /* module */[
+  /* Definition */Definition,
   /* weigh */weigh,
   /* isBalanced */isBalanced,
   /* make */make
@@ -181,21 +182,21 @@ var Part1 = /* module */[
 
 function findUnbalanced(towers) {
   return Js_primitive.undefined_to_opt(towers.find((function (t) {
-                    return 1 - t[/* isBalanced */2];
+                    return 1 - t[/* isBalanced */3];
                   })));
 }
 
 function findBalanced(towers) {
   return Js_primitive.undefined_to_opt(towers.find((function (t) {
-                    return t[/* isBalanced */2];
+                    return t[/* isBalanced */3];
                   })));
 }
 
 function balance(_tower) {
   while(true) {
     var tower = _tower;
-    var match = tower[/* children */3];
-    var match$1 = tower[/* isBalanced */2];
+    var match = tower[/* children */2];
+    var match$1 = tower[/* isBalanced */3];
     if (match) {
       if (match$1 !== 0) {
         throw [
@@ -256,14 +257,13 @@ var part1 = solve;
 
 var part2 = solve$1;
 
-exports.sumArray        = sumArray;
-exports.unsafeUnwrap    = unsafeUnwrap;
-exports.nameWeightRe    = nameWeightRe;
-exports.splitNames      = splitNames;
-exports.TowerDefinition = TowerDefinition;
-exports.Tower           = Tower;
-exports.Part1           = Part1;
-exports.Part2           = Part2;
-exports.part1           = part1;
-exports.part2           = part2;
+exports.sumArray     = sumArray;
+exports.unsafeUnwrap = unsafeUnwrap;
+exports.nameWeightRe = nameWeightRe;
+exports.splitNames   = splitNames;
+exports.Tower        = Tower;
+exports.Part1        = Part1;
+exports.Part2        = Part2;
+exports.part1        = part1;
+exports.part2        = part2;
 /* nameWeightRe Not a pure module */
