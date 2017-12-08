@@ -89,7 +89,7 @@ function solve(input) {
           if (line.length !== 7) {
             throw [
                   Caml_builtin_exceptions.failure,
-                  "Could not parse register"
+                  "Could not parse instruction"
                 ];
           } else {
             var opReg = line[0];
@@ -103,7 +103,8 @@ function solve(input) {
               var amount = Caml_format.caml_int_of_string(amt);
               var predAmount = Caml_format.caml_int_of_string(predAmt);
               if (assertPredicate(context, predReg, pred, predAmount)) {
-                context[opReg] = executeOperation(context, opReg, op, amount);
+                var newValue = executeOperation(context, opReg, op, amount);
+                context[opReg] = newValue;
                 return /* () */0;
               } else {
                 return /* () */0;
@@ -111,7 +112,7 @@ function solve(input) {
             } else {
               throw [
                     Caml_builtin_exceptions.failure,
-                    "Could not parse register"
+                    "Could not parse instruction"
                   ];
             }
           }
@@ -134,12 +135,76 @@ var Part1 = /* module */[
   /* solve */solve
 ];
 
-var Part2 = /* module */[];
+function solve$1(input) {
+  var context = { };
+  var max = [0];
+  $$Array.iteri((function (i, line) {
+          if (line.length !== 7) {
+            throw [
+                  Caml_builtin_exceptions.failure,
+                  "Could not parse instruction"
+                ];
+          } else {
+            var opReg = line[0];
+            var op = line[1];
+            var amt = line[2];
+            var match = line[3];
+            if (match === "if") {
+              var predReg = line[4];
+              var pred = line[5];
+              var predAmt = line[6];
+              var amount = Caml_format.caml_int_of_string(amt);
+              var predAmount = Caml_format.caml_int_of_string(predAmt);
+              if (assertPredicate(context, predReg, pred, predAmount)) {
+                var newValue = executeOperation(context, opReg, op, amount);
+                context[opReg] = newValue;
+                var match$1 = +(i === 0);
+                var match$2 = +(newValue > max[0]);
+                if (match$1 !== 0 || match$2 !== 0) {
+                  max[0] = newValue;
+                  return /* () */0;
+                } else {
+                  return /* () */0;
+                }
+              } else {
+                return /* () */0;
+              }
+            } else {
+              throw [
+                    Caml_builtin_exceptions.failure,
+                    "Could not parse instruction"
+                  ];
+            }
+          }
+        }), $$Array.map((function (param) {
+              return param.split(" ");
+            }), input.split("\n")));
+  return max[0];
+}
+
+var Part2_000 = /* cases : :: */[
+  /* tuple */[
+    "b inc 5 if a > 1\na inc 1 if b < 5\nc dec -10 if a >= 1\nc inc -20 if c == 10",
+    10
+  ],
+  /* [] */0
+];
+
+var Part2 = /* module */[
+  Part2_000,
+  /* solve */solve$1
+];
 
 var part1 = solve;
 
-exports.max   = max;
-exports.Part1 = Part1;
-exports.Part2 = Part2;
-exports.part1 = part1;
+var part2 = solve$1;
+
+exports.max                 = max;
+exports.unwrapRegisterValue = unwrapRegisterValue;
+exports.assertPredicate     = assertPredicate;
+exports.executeOperation    = executeOperation;
+exports.Part1               = Part1;
+exports.Part2               = Part2;
+exports.part1               = part1;
+exports.part2               = part2;
 /* Js_dict Not a pure module */
