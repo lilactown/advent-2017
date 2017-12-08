@@ -18,7 +18,6 @@ function runTest(file) {
   const capitalizedName = moduleName[0].toUpperCase() + moduleName.slice(1);
   if (folder !== "tests") { // ignore tests dir
     const srcIndex = splitByFolders.findIndex((v) => v === "src") + 1;
-    console.log(splitByFolders.slice(0, srcIndex));
     const testPath = `${splitByFolders.slice(0, srcIndex).join("/")}/tests/${moduleName}Test.bs`;
     const testModule = nullableRequire(testPath);
     if (testModule) {

@@ -1,0 +1,1 @@
+module Part1Test = Solution.Make(DayEight.Part1);
