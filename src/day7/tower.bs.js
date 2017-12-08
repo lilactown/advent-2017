@@ -14,14 +14,6 @@ function sumArray(param) {
               }), 0, param);
 }
 
-function unsafeUnwrap(option) {
-  if (option) {
-    return option[0];
-  } else {
-    throw Caml_builtin_exceptions.not_found;
-  }
-}
-
 var nameWeightRe = (/(.+) \((\d+)\)/);
 
 function splitNames(array) {
@@ -156,114 +148,11 @@ function make(definitions, root) {
   }
 }
 
-var Tower = /* module */[
-  /* Definition */Definition,
-  /* weigh */weigh,
-  /* isBalanced */isBalanced,
-  /* make */make
-];
-
-function solve(input) {
-  return findRootDef(fromInput(input), 0)[/* name */0];
-}
-
-var Part1_000 = /* cases : :: */[
-  /* tuple */[
-    "pbga (66)\nxhth (57)\nebii (61)\nhavc (66)\nktlj (57)\nfwft (72) -> ktlj, cntj, xhth\nqoyq (66)\npadx (45) -> pbga, havc, qoyq\ntknk (41) -> ugml, padx, fwft\njptl (61)\nugml (68) -> gyxo, ebii, jptl\ngyxo (61)\ncntj (57)",
-    "tknk"
-  ],
-  /* [] */0
-];
-
-var Part1 = /* module */[
-  Part1_000,
-  /* solve */solve
-];
-
-function findUnbalanced(towers) {
-  return Js_primitive.undefined_to_opt(towers.find((function (t) {
-                    return 1 - t[/* isBalanced */3];
-                  })));
-}
-
-function findBalanced(towers) {
-  return Js_primitive.undefined_to_opt(towers.find((function (t) {
-                    return t[/* isBalanced */3];
-                  })));
-}
-
-function balance(_tower) {
-  while(true) {
-    var tower = _tower;
-    var match = tower[/* children */2];
-    var match$1 = tower[/* isBalanced */3];
-    if (match) {
-      if (match$1 !== 0) {
-        throw [
-              Caml_builtin_exceptions.failure,
-              "Could not balance 1"
-            ];
-      } else {
-        var children = match[0];
-        var match$2 = findUnbalanced(children);
-        if (match$2) {
-          _tower = match$2[0];
-          continue ;
-          
-        } else {
-          var sample = unsafeUnwrap(findBalanced(children));
-          var outlier = unsafeUnwrap(Js_primitive.undefined_to_opt(children.find((function(sample){
-                      return function (t) {
-                        return +(t[/* totalWeight */4] !== sample[/* totalWeight */4]);
-                      }
-                      }(sample)))));
-          var diff = outlier[/* totalWeight */4] - sample[/* totalWeight */4] | 0;
-          return /* tuple */[
-                  outlier[/* name */0],
-                  outlier[/* weight */1] - diff | 0
-                ];
-        }
-      }
-    } else {
-      throw [
-            Caml_builtin_exceptions.failure,
-            "Could not balance 0"
-          ];
-    }
-  };
-}
-
-function solve$1(input) {
-  var towerDefs = fromInput(input);
-  var rootDef = findRootDef(towerDefs, 0);
-  var tower = make(towerDefs, rootDef);
-  return balance(tower)[1];
-}
-
-var Part2_000 = /* cases : :: */[
-  /* tuple */[
-    "pbga (66)\nxhth (57)\nebii (61)\nhavc (66)\nktlj (57)\nfwft (72) -> ktlj, cntj, xhth\nqoyq (66)\npadx (45) -> pbga, havc, qoyq\ntknk (41) -> ugml, padx, fwft\njptl (61)\nugml (68) -> gyxo, ebii, jptl\ngyxo (61)\ncntj (57)",
-    60
-  ],
-  /* [] */0
-];
-
-var Part2 = /* module */[
-  Part2_000,
-  /* solve */solve$1
-];
-
-var part1 = solve;
-
-var part2 = solve$1;
-
 exports.sumArray     = sumArray;
-exports.unsafeUnwrap = unsafeUnwrap;
 exports.nameWeightRe = nameWeightRe;
 exports.splitNames   = splitNames;
-exports.Tower        = Tower;
-exports.Part1        = Part1;
-exports.Part2        = Part2;
-exports.part1        = part1;
-exports.part2        = part2;
+exports.Definition   = Definition;
+exports.weigh        = weigh;
+exports.isBalanced   = isBalanced;
+exports.make         = make;
 /* nameWeightRe Not a pure module */

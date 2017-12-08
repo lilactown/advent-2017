@@ -5,7 +5,9 @@
   "version": "0.1.0",
   "sources": [
     "src",
-    "src/tests"
+    "src/tests",
+    "src/day7",
+    "src/day8"
   ],
   "package-specs": {
     "module": "commonjs",
