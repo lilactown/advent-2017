@@ -7,7 +7,8 @@
     "src",
     "src/tests",
     "src/day7",
-    "src/day8"
+    "src/day8",
+    "src/day9"
   ],
   "package-specs": {
     "module": "commonjs",
@@ -15,7 +16,7 @@
   },
   "suffix": ".bs.js",
   "bs-dependencies": [
-      // add your dependencies here. You'd usually install them normally through `npm install my-dependency`. If my-dependency has a bsconfig.json too, then everything will work seamlessly.
+    // add your dependencies here. You'd usually install them normally through `npm install my-dependency`. If my-dependency has a bsconfig.json too, then everything will work seamlessly.
   ],
   "namespace": true,
   "refmt": 3,
