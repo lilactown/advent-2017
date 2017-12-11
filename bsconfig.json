@@ -9,7 +9,8 @@
     "src/day7",
     "src/day8",
     "src/day9",
-    "src/day10"
+    "src/day10",
+    "src/day11"
   ],
   "package-specs": {
     "module": "commonjs",
