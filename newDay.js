@@ -48,10 +48,10 @@ let part1 = Part1.solve;
 let part2 = Part2.solve;`).to(`${longName}.re`);
 console.log(`\n ** Creating tests in tests/${longName}Test.re`)
 sh.cd("../tests");
-sh.touch(`${longName}Tests.re`);
+sh.touch(`${longName}Test.re`);
 sh.echo(`module Part1Test = Solution.Make(${longNameCapitalize}.Part1);
 
-module Part2Test = Solution.Make(${longNameCapitalize}.Part2);`).to(`${longName}Tests.re`);
+module Part2Test = Solution.Make(${longNameCapitalize}.Part2);`).to(`${longName}Test.re`);
 // edit bsconfig
 
 console.log('\n ** Updating bsconfig.json');
