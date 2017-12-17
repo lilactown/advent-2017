@@ -98,12 +98,12 @@ module Part1: Solution.Solver = {
   };
 };
 
-let rec findCycle = (~initialProgram: programs, programs, ~danceMoves, iter) => {
+let rec findCycle = (~initialProgram: programs, programs, ~danceMoves) => {
   let programs' = dance(List.hd(programs), danceMoves);
   if (programs' == initialProgram) {
-    programs
+    [programs', ...programs] |> List.rev
   } else {
-    findCycle(~initialProgram, [programs', ...programs], ~danceMoves, iter + 1)
+    findCycle(~initialProgram, [programs', ...programs], ~danceMoves)
   }
 };
 
@@ -114,9 +114,8 @@ module Part2: Solution.Solver = {
   let solve = ((amount, input)) => {
     let start = Array.init(amount, (i) => Char.chr(97 + i)) |> Array.map(String.make(1));
     let danceMoves = parseDance(input);
-    let programs = findCycle(~initialProgram=start, [start], ~danceMoves, 1);
-    let position = 1_000_000_000 mod List.length(programs);
-    Js.log((List.length(programs), position));
+    let programs = findCycle(~initialProgram=start, [start], ~danceMoves);
+    let position = 1_000_000_000 mod (List.length(programs) - 1);
     List.nth(programs, position) |> Js.Array.joinWith("")
   };
 };
