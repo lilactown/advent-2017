@@ -1,12 +1,30 @@
-include Array;
-
+/* include Array; */
 type t('a) = array('a);
 
-let computePos = (array: t('a), n) => n mod length(array);
+let make: (int, 'a) => t('a) = Array.make;
+
+let copy: t('a) => t('a) = Array.copy;
+
+let computePos = (array: t('a), n) => n mod Array.length(array);
 
 let get = (array: t('a), n) => array[computePos(array, n)];
 
 let set = (array: t('a), n, v) => array[computePos(array, n)] = v;
+
+let length: t('a) => int = Array.length;
+
+let insert = (array: t('a), n, v) : t('a) =>
+  Array.init(
+    length(array) + 1,
+    (i) =>
+      if (i == n) {
+        v
+      } else if (i > n) {
+        array[i - 1]
+      } else {
+        array[i]
+      }
+  );
 
 let rev = Js.Array.reverseInPlace;
 

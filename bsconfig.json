@@ -13,7 +13,8 @@
     "src/day13",
     "src/day14",
     "src/day15",
-    "src/day16"
+    "src/day16",
+    "src/day17"
   ],
   "package-specs": {
     "module": "commonjs",
