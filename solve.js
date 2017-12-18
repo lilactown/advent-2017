@@ -27,6 +27,8 @@ let longNameCapitalize = `Day${dateMap[name]}`;
 function processInput(args) {
   if (args[0] === "--int") {
     return parseInt(args[1]);
+  } else if (args[0] === "--file") {
+    return require(`${srcDir}/${args[1]}`);
   } else {
     return args[0];
   }
