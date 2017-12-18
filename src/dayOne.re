@@ -1,5 +1,3 @@
-let explode = (input) => Js.String.split("", input) |> Array.map(int_of_string);
-
 let rec solver = (digits, len, step, xPos, total) => {
   let x = digits[xPos];
   let yPos = (xPos + step) mod len;
@@ -21,7 +19,7 @@ module Part1 = {
   let cases = [("1122", 3), ("1111", 4), ("1234", 0), ("91212129", 9)];
   let solve = (input) => {
     let step = 1;
-    let digits = explode(input);
+    let digits = StringUtils.split(input) |> Array.map(int_of_string);
     solver(digits, Array.length(digits), step, 0, 0)
   };
 };
@@ -33,7 +31,7 @@ module Part2 = {
   let solve = (input) => {
     let len = String.length(input);
     let step = len / 2;
-    let digits = explode(input);
+    let digits = StringUtils.split(input) |> Array.map(int_of_string);
     solver(digits, len, step, 0, 0)
   };
 };

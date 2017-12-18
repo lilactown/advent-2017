@@ -1,5 +1,3 @@
-let sumArray = Array.fold_left((total, n) => total + n, 0);
-
 let nameWeightRe = [%bs.re "/(.+) \\((\\d+)\\)/"];
 
 let splitNames = (array) =>
@@ -117,6 +115,6 @@ let rec make = (definitions: array(Definition.t), root: Definition.t) =>
       weight: root.weight,
       children: Some(children),
       isBalanced: isBalanced(weights),
-      totalWeight: root.weight + sumArray(weights)
+      totalWeight: root.weight + ArrayUtils.sum(0, weights)
     }
   };

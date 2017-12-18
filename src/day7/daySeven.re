@@ -1,9 +1,3 @@
-let unsafeUnwrap = (option) =>
-  switch option {
-  | None => raise(Not_found)
-  | Some(k) => k
-  };
-
 module Part1 = {
   type input = string;
   type answer = string;
@@ -59,9 +53,9 @@ cntj (57)|},
     | (Some(children), false) =>
       switch (findUnbalanced(children)) {
       | None =>
-        let sample = unsafeUnwrap(findBalanced(children));
+        let sample = OptionUtils.unsafeUnwrap(findBalanced(children));
         let outlier =
-          unsafeUnwrap(
+          OptionUtils.unsafeUnwrap(
             Js.Array.find((t: Tower.t) => t.totalWeight != sample.totalWeight, children)
           );
         let diff = outlier.totalWeight - sample.totalWeight;

@@ -1,13 +1,3 @@
-let explode = (s) => {
-  let rec exp = (i, l) =>
-    if (i < 0) {
-      l
-    } else {
-      exp(i - 1, [s.[i], ...l])
-    };
-  exp(String.length(s) - 1, [])
-};
-
 module Part1: Solution.Solver = {
   type input = string;
   type answer = int;
@@ -24,7 +14,7 @@ module Part1: Solution.Solver = {
     ("{{}{<<<<{>{}{}}}", 11)
   ];
   let solve = (input) => {
-    let stream = explode(input) |> StreamParser.parse;
+    let stream = StringUtils.explode(input) |> StreamParser.parse;
     /* StreamParser.print(stream); */
     StreamParser.sumGroups(stream)
   };
@@ -43,7 +33,7 @@ module Part2: Solution.Solver = {
     ("<{o\"i!a,<{i<a>", 10)
   ];
   let solve = (input) => {
-    let stream = explode(input) |> StreamParser.parse;
+    let stream = StringUtils.explode(input) |> StreamParser.parse;
     StreamParser.sumGarbage(stream)
   };
 };

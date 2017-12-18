@@ -4,6 +4,7 @@
   "sources": [
     "src",
     "src/tests",
+    {"dir": "src/utils", "subdirs": true },
     "src/day7",
     "src/day8",
     "src/day9",

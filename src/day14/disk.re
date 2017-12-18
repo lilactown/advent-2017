@@ -1,5 +1,3 @@
-let flattenArray: array(array('a)) => array('a) = [%bs.raw {|([s, ...a]) => s.concat(...a)|}];
-
 type elt =
   | Free
   | Used
@@ -25,7 +23,7 @@ let printRegion = (~x, ~y, ~size, disk: t) =>
             switch disk[y + i][x + j] {
             | Used => "  #"
             | Free => "  ."
-            | Group(n) => KnotHash.padStart(~length=3, ~padWith=" ", string_of_int(n))
+            | Group(n) => StringUtils.padStart(~length=3, ~padWith=" ", string_of_int(n))
             }
         )
         |> Js.Array.joinWith(" ")
@@ -34,20 +32,7 @@ let printRegion = (~x, ~y, ~size, disk: t) =>
   )
   ++ "\n";
 
-let hexToDec = (s) => int_of_string("0x" ++ s);
-
-let decToBin = (n) => {
-  let rec toBin = (k) =>
-    switch (k / 2, k mod 2) {
-    | (0, d) => string_of_int(d)
-    | (k', d) => toBin(k') ++ string_of_int(d)
-    };
-  KnotHash.padStart(~length=4, ~padWith="0", toBin(n))
-};
-
-let hexToBin = (s) => hexToDec(s) |> decToBin;
-
-let flatten: t => array(elt) = [%bs.raw {|([s, ...a]) => s.concat(...a)|}];
+let flatten: t => array(elt) = ArrayUtils.concat;
 
 let size: t => int = Array.length;
 
@@ -57,9 +42,10 @@ let make = (input) : t =>
        (r) =>
          KnotHash.make(r)
          |> Js.String.split("")
-         |> Array.map(hexToBin)
+         /* TODO: Improve performance here */
+         |> Array.map(IntUtils.hexToBinString)
          |> Array.map(Js.String.split(""))
-         |> flattenArray
+         |> ArrayUtils.concat
          |> Array.map(
               (b) =>
                 switch b {

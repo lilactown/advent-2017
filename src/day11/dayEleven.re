@@ -1,4 +1,4 @@
-let abs = Js.Math.abs_int;
+let abs = IntUtils.abs;
 
 let cardinalToCoord = (dir) =>
   switch dir {

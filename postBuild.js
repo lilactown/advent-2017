@@ -1,6 +1,6 @@
 #!/usr/local/bin/node
 const file = process.argv[2];
-const solutionUtils = require('./src/solution.bs');
+const solutionUtils = require('./src/utils/solution.bs');
 
 function nullableRequire(path) {
   try {

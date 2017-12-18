@@ -1,19 +1,3 @@
-type binary = string;
-
-/* BuckleScript maintains OCaml's 32-bit precision in integers
-   which ends up truncating a lot of numbers - so we define our
-   own platform-specific integer multiplication here */
-let mul: (int, int) => int = [%bs.raw {| (a, b) => a * b|}];
-
-let decToBin = (~bits=32, n) : binary => {
-  let rec toBin = (k) =>
-    switch (k / 2, k mod 2) {
-    | (0, d) => string_of_int(d)
-    | (k', d) => toBin(k') ++ string_of_int(d)
-    };
-  KnotHash.padStart(~length=bits, ~padWith="0", toBin(n))
-};
-
 module Generator = {
   type t = {
     value: int,
@@ -23,7 +7,7 @@ module Generator = {
   let constant = 2147483647;
   let value = ({value}: t) => value;
   let next = ({value, factor}) : t => {
-    let next = mul(value, factor) mod constant;
+    let next = IntUtils.mul(value, factor) mod constant;
     {value: next, factor}
   };
   let make: makeFn = fun (~factor, ~start) => ({factor, value: start}: t);
@@ -39,7 +23,7 @@ module PickyGenerator = {
   let constant = 2147483647;
   let value = ({value}: t) => value;
   let rec next = ({value, factor, criteria}) : t => {
-    let nextVal = mul(value, factor) mod constant;
+    let nextVal = IntUtils.mul(value, factor) mod constant;
     if (nextVal mod criteria == 0) {
       {value: nextVal, factor, criteria}
     } else {
@@ -58,10 +42,11 @@ module Judge = {
     let make: makeFn;
   };
   module Make = (G: GeneratorType) => {
-    let getLowest16 = (b: binary) => Js.String.substringToEnd(~from=16, b);
+    let getLowest16 = (b: IntUtils.binary) => Js.String.substringToEnd(~from=16, b);
     let consider = (a, b) => {
-      let aBin = decToBin(a);
-      let bBin = decToBin(b);
+      /* TODO: Improve performance */
+      let aBin = IntUtils.decToBinString(a);
+      let bBin = IntUtils.decToBinString(b);
       let a' = int_of_string("0b" ++ getLowest16(aBin));
       let b' = int_of_string("0b" ++ getLowest16(bBin));
       switch (a' - b') {

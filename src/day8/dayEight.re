@@ -1,14 +1,3 @@
-let max = (numbers) => {
-  let (max, index, _) =
-    Array.fold_left(
-      ((curMax, lastMaxIndex, index), n: int) =>
-        curMax >= n ? (curMax, lastMaxIndex, index + 1) : (n, index, index + 1),
-      (numbers[0], 0, 0),
-      numbers
-    );
-  (max, index)
-};
-
 module Part1: Solution.Solver = {
   /**
    * What is the largest value in any register after completing the instructions in your puzzle input?
@@ -40,7 +29,7 @@ c inc -20 if c == 10|}, 1)
            | _ => raise(Failure("Could not parse instruction"))
            }
        );
-    let (largest, _) = max(CPUInstruction.Context.values(context));
+    let largest = IntUtils.max(CPUInstruction.Context.values(context));
     largest
   };
 };

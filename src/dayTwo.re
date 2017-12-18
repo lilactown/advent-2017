@@ -1,8 +1,8 @@
-let splitLines = (input) => Js.String.split("\n", input) |> Array.to_list;
+let splitLines = (input) => StringUtils.splitWith("\n", input) |> Array.to_list;
 
 let splitDigits = (line) =>
   /* change this to split "\t" on actual input */
-  Js.String.split(" ", line) |> Array.map(int_of_string) |> Array.to_list;
+  StringUtils.splitWith(" ", line) |> Array.map(int_of_string) |> Array.to_list;
 
 let debug = (input) => {
   Js.log(input);

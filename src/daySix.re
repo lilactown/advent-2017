@@ -1,14 +1,3 @@
-let max = (numbers) => {
-  let (max, index, _) =
-    Array.fold_left(
-      ((curMax, lastMaxIndex, index), n: int) =>
-        curMax >= n ? (curMax, lastMaxIndex, index + 1) : (n, index, index + 1),
-      (numbers[0], 0, 0),
-      numbers
-    );
-  (max, index)
-};
-
 let zeroIndex = (index, array) => {
   let newArr = Array.copy(array);
   newArr[index] = 0;
@@ -51,7 +40,7 @@ let rec reallocate = (banks, blocksToAllocate, start) => {
 };
 
 let rec cycle = (banks, allocations) => {
-  let (blocks, maxIndex) = max(banks);
+  let (blocks, maxIndex) = IntUtils.maxi(banks);
   let newAllocation = reallocate(zeroIndex(maxIndex, banks), blocks, maxIndex + 1);
   let (isRepeat, repeatIndex) = detectRepeat(allocations, newAllocation);
   if (isRepeat) {
@@ -66,7 +55,7 @@ module Part1 = {
   type answer = int;
   let cases = [("0 2 7 0", 5)];
   let solve = (input) => {
-    let banks = Js.String.split(" ", input) |> Array.map(int_of_string);
+    let banks = StringUtils.splitWith(" ", input) |> Array.map(int_of_string);
     let (allocations, _) = cycle(banks, [|banks|]);
     Array.length(allocations)
   };
@@ -77,7 +66,7 @@ module Part2 = {
   type answer = int;
   let cases = [("0 2 7 0", 4)];
   let solve = (input) => {
-    let banks = Js.String.split(" ", input) |> Array.map(int_of_string);
+    let banks = StringUtils.splitWith(" ", input) |> Array.map(int_of_string);
     let (_, repeatIndex) = cycle(banks, [|banks|]);
     repeatIndex + 1
   };

@@ -1,14 +1,3 @@
-let max = (numbers) => {
-  let (max, index, _) =
-    Array.fold_left(
-      ((curMax, lastMaxIndex, index), n: int) =>
-        curMax >= n ? (curMax, lastMaxIndex, index + 1) : (n, index, index + 1),
-      (numbers[0], 0, 0),
-      numbers
-    );
-  (max, index)
-};
-
 module Layer = {
   type direction =
     | Up
@@ -67,7 +56,7 @@ let tick = map(Layer.tick);
 
 let tickMany = (amount) => map(Layer.tickMany(amount));
 
-let maxRange = (firewall) => fst(max(Array.map((layer: Layer.t) => layer.range, firewall)));
+let maxRange = (firewall) => IntUtils.max(Array.map((layer: Layer.t) => layer.range, firewall));
 
 let print = (~packet=?, firewall) => {
   let size = size(firewall);
