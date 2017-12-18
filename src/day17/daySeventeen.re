@@ -36,10 +36,23 @@ module Part2: Solution.Solver = {
   type answer = int;
   let cases = [];
   let solve = (stepAmount) => {
-    let lastOne = ref(0);
+    /**
+     * The current position of the spinlock can be defined
+     * by a recurrence relation:
+     * a(0) = 0;
+     * a(n) = ((a(n-1) + C) mod n) + 1;
+     */
     let seq = (a_n, n) => (a_n + stepAmount) mod n + 1;
-    let steps = 50_000_000;
     let a_n = ref(0);
+    /**
+     * Each iteration, we check whether a(n) == 1.
+     * If so, we store the current value that we're placing
+     * in a reference.
+     * At the end of the 50,000,000 iterations, we check to
+     * see what the last value placed in position 1 is.
+     */
+    let lastOne = ref(0);
+    let steps = 50_000_000;
     for (n in 1 to steps) {
       a_n := seq(a_n^, n);
       if (a_n^ == 1) {
