@@ -4,7 +4,10 @@
   "sources": [
     "src",
     "src/tests",
-    {"dir": "src/utils", "subdirs": true },
+    {
+      "dir": "src/utils",
+      "subdirs": true
+    },
     "src/day7",
     "src/day8",
     "src/day9",
@@ -15,7 +18,8 @@
     "src/day14",
     "src/day15",
     "src/day16",
-    "src/day17"
+    "src/day17",
+    "src/day18"
   ],
   "package-specs": {
     "module": "commonjs",

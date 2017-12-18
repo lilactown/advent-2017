@@ -2,8 +2,12 @@ type binary = string;
 
 /* BuckleScript maintains OCaml's 32-bit precision in integers
    which ends up truncating a lot of numbers - so we define our
-   own platform-specific integer multiplication here */
+   own platform-specific integer operations here */
+let add: (int, int) => int = [%bs.raw {| (a, b) => a + b |}];
+
 let mul: (int, int) => int = [%bs.raw {| (a, b) => a * b|}];
+
+let modulo: (int, int) => int = [%bs.raw {| (a, b) => a % b|}];
 
 let maxi = (numbers) => {
   let (max, index, _) =
@@ -36,3 +40,7 @@ let decToBinString = (~bits=32, n) : binary => {
 };
 
 let hexToBinString = (s) => hexToDec(s) |> decToBinString(~bits=4);
+
+[@bs.send] external toString : int => string = "";
+
+let ofString: string => int = [%bs.raw {|(a) => parseInt(a, 10)|}];
