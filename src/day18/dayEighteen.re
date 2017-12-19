@@ -21,8 +21,8 @@ jgz a -2|}, 4)
     let recovered = ref(0);
     while (! break^) {
       let newState: ReallySongDuet.state = ReallySongDuet.play(state^);
-      if (newState.ReallySongDuet.state.recovered != 0) {
-        recovered := newState.ReallySongDuet.state.recovered;
+      if (ReallySongDuet.getLastRcvd(newState) != 0) {
+        recovered := ReallySongDuet.getLastRcvd(newState);
         state := newState;
         break := true
       } else {

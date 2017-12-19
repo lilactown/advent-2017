@@ -51,6 +51,7 @@ module type DuetType = {
   let rcv: (state, value) => state;
   let jgz: (state, value, value) => state;
   let make: string => state;
+  let getLastRcvd: state => int;
 };
 
 module Make = (D: DuetType) => {
@@ -81,4 +82,5 @@ module Make = (D: DuetType) => {
     | Rcv(value) => "Rcv(" ++ printValue(value) ++ ")"
     | JumpIfGreaterThanZero(v1, v2) => "JGZ(" ++ printValue(v1) ++ ", " ++ printValue(v2) ++ ")"
     };
+  let getLastRcvd = D.getLastRcvd;
 };
