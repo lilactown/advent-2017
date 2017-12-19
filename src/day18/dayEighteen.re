@@ -13,16 +13,16 @@ jgz a -1
 set a 1
 jgz a -2|}, 4)
   ];
-  module ReallySongDuet = Duet.Make(NewSongDuet.Definition);
+  module ReallySongDuet = Duet.Make(Song);
   let solve = (input) => {
     let duet = ReallySongDuet.make(input);
     let break = ref(false);
     let state = ref(duet);
     let recovered = ref(0);
     while (! break^) {
-      let newState: NewSongDuet.Definition.state = ReallySongDuet.play(state^);
-      if (newState.NewSongDuet.Definition.state.recovered != 0) {
-        recovered := newState.NewSongDuet.Definition.state.recovered;
+      let newState: ReallySongDuet.state = ReallySongDuet.play(state^);
+      if (newState.ReallySongDuet.state.recovered != 0) {
+        recovered := newState.ReallySongDuet.state.recovered;
         state := newState;
         break := true
       } else {
