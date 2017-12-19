@@ -72,7 +72,6 @@ let make = (input, ~onRcv, ~onSnd, ~initialReg) => {
 let play = (state) => {
   let finished = state.stackPos > Array.length(state.stack) - 1 || state.stackPos < 0;
   if (finished) {
-    Js.log("finished");
     {...state, locked: true}
   } else {
     let current = state.stack[state.stackPos];

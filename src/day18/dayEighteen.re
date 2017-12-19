@@ -15,7 +15,6 @@ jgz a -2|}, 4)
   ];
   let solve = (input) => {
     let stack = [||];
-    let break = ref(false);
     let duet =
       ref(
         Duet.make(
@@ -58,12 +57,9 @@ rcv d|}, 3)];
   let recieve = (q, state: Duet.state, value) =>
     switch (value, Queue.dequeue(q)) {
     | (Duet.Name(n), Some(v)) =>
-      /* Js.log3("recieving:", v, state.stackPos); */
       Duet.setRegister(state.registers, n, v);
       {...state, locked: false, stackPos: state.stackPos + 1}
-    | (Duet.Name(_), None) =>
-      Js.log("waiting");
-      {...state, locked: true}
+    | (Duet.Name(_), None) => {...state, locked: true}
     | _ => raise(Failure("Invalid rcv instruction"))
     };
   let solve = (input) => {
@@ -74,10 +70,7 @@ rcv d|}, 3)];
       ref(
         Duet.make(
           input,
-          ~onSnd=
-            (n) =>
-              /* Js.log2("sending from 0:", n); */
-              Queue.enqueue(q1, n) |> ignore,
+          ~onSnd=(n) => Queue.enqueue(q1, n) |> ignore,
           ~onRcv=recieve(q0),
           ~initialReg=Js.Dict.fromList([("p", 0)])
         )
@@ -88,7 +81,6 @@ rcv d|}, 3)];
           input,
           ~onSnd=
             (n) => {
-              Js.log2("sending from 1:", n);
               Queue.enqueue(q0, n) |> ignore;
               count := count^ + 1
             },
@@ -101,6 +93,7 @@ rcv d|}, 3)];
       program0 := playUntil(program0^);
       program1 := playUntil(program1^);
       program0 := Duet.play(program0^);
+      program1 := Duet.play(program1^);
       if (program0^.locked && program1^.locked) {
         break := true
       }
