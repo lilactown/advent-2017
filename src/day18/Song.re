@@ -4,16 +4,18 @@ type state = {
   lastSound: int,
   registers: Duet.registers,
   finished: bool,
-  lastRcvd: int
+  lastRcvd: int,
+  onRcv: int => unit
 };
 
-let make = (input) => {
+let make = (input, ~onRcv) => {
   stack: Duet.parse(input),
   stackPos: 0,
   lastSound: 0,
   registers: Js.Dict.empty(),
   finished: false,
-  lastRcvd: 0
+  lastRcvd: 0,
+  onRcv
 };
 
 let getInstruction: state => Duet.instruction = (state) => state.stack[state.stackPos];
@@ -27,122 +29,93 @@ let getRegister = (registers, name) =>
 let setRegister = (registers: Duet.registers, name: Duet.name, value) =>
   Js.Dict.set(registers, name, value);
 
-let snd = ({stack, stackPos, registers, lastRcvd, finished}, value) =>
+let snd = (state, value) =>
   switch value {
   | Duet.Name(s) =>
-    let f = getRegister(registers, s);
-    {stack, stackPos: stackPos + 1, lastSound: f, registers, lastRcvd, finished}
+    let f = getRegister(state.registers, s);
+    {...state, stackPos: state.stackPos + 1, lastSound: f}
   | Duet.Number(_) => raise(Failure("`snd` does not take a number"))
   };
 
-let set = ({stack, stackPos, lastSound, registers, lastRcvd, finished}, name, value) =>
+let set = (state, name, value) =>
   switch value {
   | Duet.Name(s) =>
-    setRegister(registers, name, getRegister(registers, s));
-    {stack, stackPos: stackPos + 1, lastSound, registers, lastRcvd, finished}
+    setRegister(state.registers, name, getRegister(state.registers, s));
+    {...state, stackPos: state.stackPos + 1}
   | Duet.Number(n) =>
-    setRegister(registers, name, n);
-    {stack, stackPos: stackPos + 1, lastSound, registers, lastRcvd, finished}
+    setRegister(state.registers, name, n);
+    {...state, stackPos: state.stackPos + 1}
   };
 
-let add = ({stack, stackPos, lastSound, registers, lastRcvd, finished}, name, value) =>
-  switch value {
-  | Duet.Name(s) =>
-    setRegister(
-      registers,
-      name,
-      IntUtils.add(getRegister(registers, name), getRegister(registers, s))
-    );
-    {stack, stackPos: stackPos + 1, lastSound, registers, lastRcvd, finished}
-  | Duet.Number(n) =>
-    setRegister(registers, name, IntUtils.add(getRegister(registers, name), n));
-    {stack, stackPos: stackPos + 1, lastSound, registers, lastRcvd, finished}
-  };
-
-let multiply = ({stack, stackPos, lastSound, registers, lastRcvd, finished}, name, value) =>
+let add = (state, name, value) =>
   switch value {
   | Duet.Name(s) =>
     setRegister(
-      registers,
+      state.registers,
       name,
-      IntUtils.mul(getRegister(registers, name), getRegister(registers, s))
+      IntUtils.add(getRegister(state.registers, name), getRegister(state.registers, s))
     );
-    {stack, stackPos: stackPos + 1, lastSound, registers, lastRcvd, finished}
+    {...state, stackPos: state.stackPos + 1}
   | Duet.Number(n) =>
-    setRegister(registers, name, IntUtils.mul(getRegister(registers, name), n));
-    {stack, stackPos: stackPos + 1, lastSound, registers, lastRcvd, finished}
+    setRegister(state.registers, name, IntUtils.add(getRegister(state.registers, name), n));
+    {...state, stackPos: state.stackPos + 1}
   };
 
-let modulo = ({stack, stackPos, lastSound, registers, lastRcvd, finished}, name, value) =>
+let multiply = (state, name, value) =>
   switch value {
   | Duet.Name(s) =>
     setRegister(
-      registers,
+      state.registers,
       name,
-      IntUtils.modulo(getRegister(registers, name), getRegister(registers, s))
+      IntUtils.mul(getRegister(state.registers, name), getRegister(state.registers, s))
     );
-    {stack, stackPos: stackPos + 1, lastSound, registers, lastRcvd, finished}
+    {...state, stackPos: state.stackPos + 1}
   | Duet.Number(n) =>
-    setRegister(registers, name, IntUtils.modulo(getRegister(registers, name), n));
-    {stack, stackPos: stackPos + 1, lastSound, registers, lastRcvd, finished}
+    setRegister(state.registers, name, IntUtils.mul(getRegister(state.registers, name), n));
+    {...state, stackPos: state.stackPos + 1}
   };
 
-let rcv = ({stack, stackPos, lastSound, registers, lastRcvd, finished}, value) =>
+let modulo = (state, name, value) =>
   switch value {
-  | Duet.Number(n) when n != 0 => {
-      stack,
-      stackPos: stackPos + 1,
-      lastSound,
-      registers,
-      lastRcvd: lastSound,
-      finished
-    }
-  | Duet.Name(s) when getRegister(registers, s) != 0 => {
-      stack,
-      stackPos: stackPos + 1,
-      lastSound,
-      registers,
-      lastRcvd: lastSound,
-      finished
-    }
-  | _ => {stack, stackPos: stackPos + 1, lastSound, registers, lastRcvd, finished}
+  | Duet.Name(s) =>
+    setRegister(
+      state.registers,
+      name,
+      IntUtils.modulo(getRegister(state.registers, name), getRegister(state.registers, s))
+    );
+    {...state, stackPos: state.stackPos + 1}
+  | Duet.Number(n) =>
+    setRegister(state.registers, name, IntUtils.modulo(getRegister(state.registers, name), n));
+    {...state, stackPos: state.stackPos + 1}
   };
 
-let jgz = ({stack, stackPos, lastSound, registers, lastRcvd, finished}, v1, v2) =>
+let rcv = (state, value) =>
+  switch value {
+  | Duet.Number(n) when n != 0 =>
+    state.onRcv(state.lastSound);
+    {...state, stackPos: state.stackPos + 1, lastRcvd: state.lastSound}
+  | Duet.Name(s) when getRegister(state.registers, s) != 0 =>
+    state.onRcv(state.lastSound);
+    {...state, stackPos: state.stackPos + 1, lastRcvd: state.lastSound}
+  | _ => {...state, stackPos: state.stackPos + 1}
+  };
+
+let jgz = (state, v1, v2) =>
   switch (v1, v2) {
-  | (Duet.Name(n1), Duet.Name(n2)) when getRegister(registers, n1) > 0 => {
-      stack,
-      stackPos: stackPos + getRegister(registers, n2),
-      lastSound,
-      registers,
-      lastRcvd,
-      finished
+  | (Duet.Name(n1), Duet.Name(n2)) when getRegister(state.registers, n1) > 0 => {
+      ...state,
+      stackPos: state.stackPos + getRegister(state.registers, n2)
     }
-  | (Duet.Name(n), Duet.Number(f)) when getRegister(registers, n) > 0 => {
-      stack,
-      stackPos: stackPos + f,
-      lastSound,
-      registers,
-      lastRcvd,
-      finished
+  | (Duet.Name(n), Duet.Number(f)) when getRegister(state.registers, n) > 0 => {
+      ...state,
+      stackPos: state.stackPos + f
     }
   | (Duet.Number(f), Duet.Name(n2)) when f > 0 => {
-      stack,
-      stackPos: stackPos + getRegister(registers, n2),
-      lastSound,
-      registers,
-      lastRcvd,
-      finished
+      ...state,
+      stackPos: state.stackPos + getRegister(state.registers, n2)
     }
-  | (Duet.Number(f1), Duet.Number(f2)) when f1 > 0 => {
-      stack,
-      stackPos: stackPos + f2,
-      lastSound,
-      registers,
-      lastRcvd,
-      finished
-    }
-  | (_, _) => {stack, stackPos: stackPos + 1, lastSound, registers, lastRcvd, finished}
+  | (Duet.Number(f1), Duet.Number(f2)) when f1 > 0 => {...state, stackPos: state.stackPos + f2}
+  | (_, _) => {...state, stackPos: state.stackPos + 1}
   };
 
 let getLastRcvd = (state) => state.lastRcvd;

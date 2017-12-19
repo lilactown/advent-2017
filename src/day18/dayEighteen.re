@@ -13,23 +13,19 @@ jgz a -1
 set a 1
 jgz a -2|}, 4)
   ];
-  module ReallySongDuet = Duet.Make(Song);
+  module SongDuet = Duet.Make(Song);
   let solve = (input) => {
-    let duet = ReallySongDuet.make(input);
+    let q = Queue.make(0);
     let break = ref(false);
-    let state = ref(duet);
-    let recovered = ref(0);
+    let duet = ref(SongDuet.make(input, ~onRcv=(n) => Queue.enqueue(q, n) |> ignore));
     while (! break^) {
-      let newState: ReallySongDuet.state = ReallySongDuet.play(state^);
-      if (ReallySongDuet.getLastRcvd(newState) != 0) {
-        recovered := ReallySongDuet.getLastRcvd(newState);
-        state := newState;
-        break := true
-      } else {
-        state := newState
+      duet := SongDuet.play(duet^);
+      switch (Queue.peek(q)) {
+      | Some(_) => break := true
+      | None => ()
       }
     };
-    recovered^
+    Js.Option.getExn(Queue.dequeue(q))
   };
 };
 

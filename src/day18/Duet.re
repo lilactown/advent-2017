@@ -50,13 +50,13 @@ module type DuetType = {
   let modulo: (state, name, value) => state;
   let rcv: (state, value) => state;
   let jgz: (state, value, value) => state;
-  let make: string => state;
+  let make: (string, ~onRcv: int => unit) => state;
   let getLastRcvd: state => int;
 };
 
 module Make = (D: DuetType) => {
   type state = D.state;
-  let make: string => state = D.make;
+  let make = D.make;
   let play = (state: state) =>
     switch (D.getInstruction(state)) {
     | Snd(x) => D.snd(state, x)
