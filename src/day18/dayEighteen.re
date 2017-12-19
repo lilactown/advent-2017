@@ -20,7 +20,13 @@ jgz a -2|}, 4)
       ref(
         Duet.make(
           input,
-          ~onRcv=(state: Duet.state, _) => {...state, locked: true},
+          ~onRcv=
+            (state: Duet.state, v) =>
+              switch v {
+              | Name(n) when Duet.getRegister(state.registers, n) != 0 => {...state, locked: true}
+              | Frequency(f) when f != 0 => {...state, locked: true}
+              | _ => {...state, stackPos: state.stackPos + 1}
+              },
           ~onSnd=(n) => Js.Array.push(n, stack) |> ignore,
           ~initialReg=Js.Dict.empty()
         )
@@ -52,7 +58,7 @@ rcv d|}, 3)];
   let recieve = (q, state: Duet.state, value) =>
     switch (value, Queue.dequeue(q)) {
     | (Duet.Name(n), Some(v)) =>
-      Js.log3("recieving:", v, state.stackPos);
+      /* Js.log3("recieving:", v, state.stackPos); */
       Duet.setRegister(state.registers, n, v);
       {...state, locked: false, stackPos: state.stackPos + 1}
     | (Duet.Name(_), None) =>
@@ -69,10 +75,9 @@ rcv d|}, 3)];
         Duet.make(
           input,
           ~onSnd=
-            (n) => {
-              Js.log2("sending from 0:", n);
-              Queue.enqueue(q1, n) |> ignore
-            },
+            (n) =>
+              /* Js.log2("sending from 0:", n); */
+              Queue.enqueue(q1, n) |> ignore,
           ~onRcv=recieve(q0),
           ~initialReg=Js.Dict.fromList([("p", 0)])
         )

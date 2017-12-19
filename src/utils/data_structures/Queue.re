@@ -12,7 +12,7 @@ let dequeue = (q: t('a)) => Js.Array.shift(q);
 let size = (q: t('a)) => Array.length(q);
 
 let peek = (q: t('a)) =>
-  switch q[size(q) - 1] {
+  switch q[0] {
   | exception _ => None
   | a => Some(a)
   };

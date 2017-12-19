@@ -64,7 +64,6 @@ let make = (input, ~onRcv, ~onSnd, ~initialReg) => {
   stack: parse(input),
   stackPos: 0,
   registers: initialReg,
-  /* finished: false, */
   onRcv,
   onSnd,
   locked: false
@@ -111,9 +110,9 @@ let play = (state) => {
     | Modulo(n, Name(n2)) =>
       set(n, IntUtils.modulo(get(n), get(n2)));
       {...state, locked: false, stackPos: state.stackPos + 1}
-    | Rcv(Frequency(f)) when f != 0 => state.onRcv(state, Frequency(f))
-    | Rcv(Name(n)) when get(n) != 0 => state.onRcv(state, Name(n))
-    | Rcv(_) => {...state, locked: false, stackPos: state.stackPos + 1}
+    | Rcv(Frequency(f)) => state.onRcv(state, Frequency(f))
+    | Rcv(Name(n)) => state.onRcv(state, Name(n))
+    /* | Rcv(_) => {...state, locked: false, stackPos: state.stackPos + 1} */
     | JumpIfGreaterThanZero(Name(n1), Name(n2)) when get(n1) > 0 => {
         ...state,
         locked: false,
