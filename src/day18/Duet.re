@@ -1,27 +1,47 @@
-type registers = Js.Dict.t(int);
+type frequency = int;
+
+type registers = Js.Dict.t(frequency);
 
 type name = Js.Dict.key;
 
 type value =
   | Name(name)
-  | Number(int);
+  | Frequency(frequency);
 
 type instruction =
-  | Snd(value)
+  | Sound(value)
   | Set(name, value)
   | Add(name, value)
   | Multiply(name, value)
   | Modulo(name, value)
-  | Rcv(value)
+  | Recover(value)
   | JumpIfGreaterThanZero(value, value);
+
+type state = {
+  stack: array(instruction),
+  stackPos: int,
+  lastSound: frequency,
+  registers,
+  finished: bool,
+  recovered: frequency,
+  onRcv: frequency => unit
+};
 
 let toValue = (s: string) => {
   let c = s.[0];
   switch c {
   | 'a'..'z' => Name(s)
-  | _ => Number(IntUtils.ofString(s))
+  | _ => Frequency(IntUtils.ofString(s))
   }
 };
+
+let getRegister = (registers, name) =>
+  switch (Js.Dict.get(registers, name)) {
+  | Some(v) => v
+  | None => 0
+  };
+
+let setRegister = (registers: registers, name: name, value) => Js.Dict.set(registers, name, value);
 
 let parse = (input) : array(instruction) =>
   StringUtils.splitWith("\n", input)
@@ -29,58 +49,100 @@ let parse = (input) : array(instruction) =>
   |> Array.map(
        (line) =>
          switch line {
-         | [|"snd", x|] => Snd(toValue(x))
+         | [|"snd", x|] => Sound(toValue(x))
          | [|"set", x, y|] => Set(x, toValue(y))
          | [|"add", x, y|] => Add(x, toValue(y))
          | [|"mul", x, y|] => Multiply(x, toValue(y))
          | [|"mod", x, y|] => Modulo(x, toValue(y))
-         | [|"rcv", x|] => Rcv(toValue(x))
+         | [|"rcv", x|] => Recover(toValue(x))
          | [|"jgz", x, y|] => JumpIfGreaterThanZero(toValue(x), toValue(y))
          | _ => raise(Failure("Could not parse instructions"))
          }
      );
 
-module type DuetType = {
-  type state;
-  let getInstruction: state => instruction;
-  let snd: (state, value) => state;
-  let set: (state, name, value) => state;
-  let add: (state, name, value) => state;
-  let multiply: (state, name, value) => state;
-  let modulo: (state, name, value) => state;
-  let rcv: (state, value) => state;
-  let jgz: (state, value, value) => state;
-  let make: (string, ~onRcv: int => unit) => state;
-  let getLastRcvd: state => int;
+let make = (input, ~onRcv) => {
+  stack: parse(input),
+  stackPos: 0,
+  lastSound: 0,
+  registers: Js.Dict.empty(),
+  finished: false,
+  recovered: 0,
+  onRcv
 };
 
-module Make = (D: DuetType) => {
-  type state = D.state;
-  let make = D.make;
-  let play = (state: state) =>
-    switch (D.getInstruction(state)) {
-    | Snd(x) => D.snd(state, x)
-    | Set(x, y) => D.set(state, x, y)
-    | Add(x, y) => D.add(state, x, y)
-    | Multiply(x, y) => D.multiply(state, x, y)
-    | Modulo(x, y) => D.modulo(state, x, y)
-    | Rcv(x) => D.rcv(state, x)
-    | JumpIfGreaterThanZero(x, y) => D.jgz(state, x, y)
-    };
-  let printValue = (v) =>
-    switch v {
-    | Name(n) => n
-    | Number(f) => IntUtils.toString(f)
-    };
-  let print = (state: state) =>
-    switch (D.getInstruction(state)) {
-    | Snd(value) => "Snd(" ++ printValue(value) ++ ")"
-    | Set(name, value) => "Set(" ++ name ++ ", " ++ printValue(value) ++ ")"
-    | Add(name, value) => "Add(" ++ name ++ ", " ++ printValue(value) ++ ")"
-    | Multiply(name, value) => "Mul(" ++ name ++ ", " ++ printValue(value) ++ ")"
-    | Modulo(name, value) => "Mod(" ++ name ++ ", " ++ printValue(value) ++ ")"
-    | Rcv(value) => "Rcv(" ++ printValue(value) ++ ")"
-    | JumpIfGreaterThanZero(v1, v2) => "JGZ(" ++ printValue(v1) ++ ", " ++ printValue(v2) ++ ")"
-    };
-  let getLastRcvd = D.getLastRcvd;
+let play = (state) => {
+  let current = state.stack[state.stackPos];
+  let get = getRegister(state.registers);
+  let set = setRegister(state.registers);
+  switch current {
+  | Sound(Frequency(f)) => {...state, stackPos: state.stackPos + 1, lastSound: f}
+  | Sound(Name(n)) =>
+    let f = get(n);
+    {...state, stackPos: state.stackPos + 1, lastSound: f}
+  | Set(n, Frequency(f)) =>
+    set(n, f);
+    {...state, stackPos: state.stackPos + 1}
+  | Set(n, Name(n2)) =>
+    set(n, get(n2));
+    {...state, stackPos: state.stackPos + 1}
+  | Add(n, Frequency(f)) =>
+    set(n, IntUtils.add(get(n), f));
+    {...state, stackPos: state.stackPos + 1}
+  | Add(n, Name(n2)) =>
+    set(n, IntUtils.add(get(n), get(n2)));
+    {...state, stackPos: state.stackPos + 1}
+  | Multiply(n, Frequency(f)) =>
+    set(n, IntUtils.mul(get(n), f));
+    {...state, stackPos: state.stackPos + 1}
+  | Multiply(n, Name(n2)) =>
+    set(n, IntUtils.mul(get(n), get(n2)));
+    {...state, stackPos: state.stackPos + 1}
+  | Modulo(n, Frequency(f)) =>
+    set(n, IntUtils.modulo(get(n), f));
+    {...state, stackPos: state.stackPos + 1}
+  | Modulo(n, Name(n2)) =>
+    set(n, IntUtils.modulo(get(n), get(n2)));
+    {...state, stackPos: state.stackPos + 1}
+  | Recover(Frequency(f)) when f != 0 =>
+    state.onRcv(state.lastSound);
+    {...state, stackPos: state.stackPos + 1, recovered: state.lastSound}
+  | Recover(Name(n)) when get(n) != 0 =>
+    state.onRcv(state.lastSound);
+    {...state, stackPos: state.stackPos + 1, recovered: state.lastSound}
+  | Recover(_) => {...state, stackPos: state.stackPos + 1}
+  | JumpIfGreaterThanZero(Name(n1), Name(n2)) when get(n1) > 0 => {
+      ...state,
+      stackPos: state.stackPos + get(n2)
+    }
+  | JumpIfGreaterThanZero(Name(n), Frequency(f)) when get(n) > 0 => {
+      ...state,
+      stackPos: state.stackPos + f
+    }
+  | JumpIfGreaterThanZero(Frequency(f), Name(n2)) when f > 0 => {
+      ...state,
+      stackPos: state.stackPos + get(n2)
+    }
+  | JumpIfGreaterThanZero(Frequency(f1), Frequency(f2)) when f1 > 0 => {
+      ...state,
+      stackPos: state.stackPos + f2
+    }
+  | JumpIfGreaterThanZero(_, _) => {...state, stackPos: state.stackPos + 1}
+  }
 };
+
+let printValue = (v) =>
+  switch v {
+  | Name(n) => n
+  | Frequency(f) => IntUtils.toString(f)
+  };
+
+let print = ({stack, stackPos}) =>
+  switch stack[stackPos] {
+  | Sound(value) => "Sound(" ++ printValue(value) ++ ")"
+  | Set(name, value) => "Set(" ++ name ++ ", " ++ printValue(value) ++ ")"
+  | Add(name, value) => "Add(" ++ name ++ ", " ++ printValue(value) ++ ")"
+  | Multiply(name, value) => "Mul(" ++ name ++ ", " ++ printValue(value) ++ ")"
+  | Modulo(name, value) => "Mod(" ++ name ++ ", " ++ printValue(value) ++ ")"
+  | Recover(value) => "Recover(" ++ printValue(value) ++ ")"
+  | JumpIfGreaterThanZero(v1, v2) => "JGZ(" ++ printValue(v1) ++ ", " ++ printValue(v2) ++ ")"
+  };
