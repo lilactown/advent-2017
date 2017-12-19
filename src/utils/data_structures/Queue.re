@@ -9,8 +9,10 @@ let enqueue = (q: t('a), e: 'a) => {
 
 let dequeue = (q: t('a)) => Js.Array.shift(q);
 
+let size = (q: t('a)) => Array.length(q);
+
 let peek = (q: t('a)) =>
-  switch q[Array.length(q) - 1] {
+  switch q[size(q) - 1] {
   | exception _ => None
   | a => Some(a)
   };
