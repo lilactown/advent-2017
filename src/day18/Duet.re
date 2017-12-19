@@ -9,22 +9,21 @@ type value =
   | Frequency(frequency);
 
 type instruction =
-  | Sound(value)
+  | Snd(value)
   | Set(name, value)
   | Add(name, value)
   | Multiply(name, value)
   | Modulo(name, value)
-  | Recover(value)
+  | Rcv(value)
   | JumpIfGreaterThanZero(value, value);
 
 type state = {
   stack: array(instruction),
   stackPos: int,
-  lastSound: frequency,
   registers,
   finished: bool,
-  recovered: frequency,
-  onRcv: frequency => unit
+  onRcv: state => state,
+  onSnd: frequency => unit
 };
 
 let toValue = (s: string) => {
@@ -49,25 +48,24 @@ let parse = (input) : array(instruction) =>
   |> Array.map(
        (line) =>
          switch line {
-         | [|"snd", x|] => Sound(toValue(x))
+         | [|"snd", x|] => Snd(toValue(x))
          | [|"set", x, y|] => Set(x, toValue(y))
          | [|"add", x, y|] => Add(x, toValue(y))
          | [|"mul", x, y|] => Multiply(x, toValue(y))
          | [|"mod", x, y|] => Modulo(x, toValue(y))
-         | [|"rcv", x|] => Recover(toValue(x))
+         | [|"rcv", x|] => Rcv(toValue(x))
          | [|"jgz", x, y|] => JumpIfGreaterThanZero(toValue(x), toValue(y))
          | _ => raise(Failure("Could not parse instructions"))
          }
      );
 
-let make = (input, ~onRcv) => {
+let make = (input, ~onRcv, ~onSnd) => {
   stack: parse(input),
   stackPos: 0,
-  lastSound: 0,
   registers: Js.Dict.empty(),
   finished: false,
-  recovered: 0,
-  onRcv
+  onRcv,
+  onSnd
 };
 
 let play = (state) => {
@@ -75,10 +73,13 @@ let play = (state) => {
   let get = getRegister(state.registers);
   let set = setRegister(state.registers);
   switch current {
-  | Sound(Frequency(f)) => {...state, stackPos: state.stackPos + 1, lastSound: f}
-  | Sound(Name(n)) =>
+  | Snd(Frequency(f)) =>
+    state.onSnd(f);
+    {...state, stackPos: state.stackPos + 1}
+  | Snd(Name(n)) =>
     let f = get(n);
-    {...state, stackPos: state.stackPos + 1, lastSound: f}
+    state.onSnd(f);
+    {...state, stackPos: state.stackPos + 1}
   | Set(n, Frequency(f)) =>
     set(n, f);
     {...state, stackPos: state.stackPos + 1}
@@ -103,13 +104,9 @@ let play = (state) => {
   | Modulo(n, Name(n2)) =>
     set(n, IntUtils.modulo(get(n), get(n2)));
     {...state, stackPos: state.stackPos + 1}
-  | Recover(Frequency(f)) when f != 0 =>
-    state.onRcv(state.lastSound);
-    {...state, stackPos: state.stackPos + 1, recovered: state.lastSound}
-  | Recover(Name(n)) when get(n) != 0 =>
-    state.onRcv(state.lastSound);
-    {...state, stackPos: state.stackPos + 1, recovered: state.lastSound}
-  | Recover(_) => {...state, stackPos: state.stackPos + 1}
+  | Rcv(Frequency(f)) when f != 0 => state.onRcv(state)
+  | Rcv(Name(n)) when get(n) != 0 => state.onRcv(state)
+  | Rcv(_) => {...state, stackPos: state.stackPos + 1}
   | JumpIfGreaterThanZero(Name(n1), Name(n2)) when get(n1) > 0 => {
       ...state,
       stackPos: state.stackPos + get(n2)
@@ -138,11 +135,11 @@ let printValue = (v) =>
 
 let print = ({stack, stackPos}) =>
   switch stack[stackPos] {
-  | Sound(value) => "Sound(" ++ printValue(value) ++ ")"
+  | Snd(value) => "Sound(" ++ printValue(value) ++ ")"
   | Set(name, value) => "Set(" ++ name ++ ", " ++ printValue(value) ++ ")"
   | Add(name, value) => "Add(" ++ name ++ ", " ++ printValue(value) ++ ")"
   | Multiply(name, value) => "Mul(" ++ name ++ ", " ++ printValue(value) ++ ")"
   | Modulo(name, value) => "Mod(" ++ name ++ ", " ++ printValue(value) ++ ")"
-  | Recover(value) => "Recover(" ++ printValue(value) ++ ")"
+  | Rcv(value) => "Recover(" ++ printValue(value) ++ ")"
   | JumpIfGreaterThanZero(v1, v2) => "JGZ(" ++ printValue(v1) ++ ", " ++ printValue(v2) ++ ")"
   };

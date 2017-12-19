@@ -14,17 +14,23 @@ set a 1
 jgz a -2|}, 4)
   ];
   let solve = (input) => {
-    let q = Queue.make(0);
-    let duet = ref(Duet.make(input, ~onRcv=(n) => Queue.enqueue(q, n) |> ignore));
+    let stack = [||];
     let break = ref(false);
+    let duet =
+      ref(
+        Duet.make(
+          input,
+          ~onRcv=(state: Duet.state) => {...state, finished: true},
+          ~onSnd=(n) => Js.Array.push(n, stack) |> ignore
+        )
+      );
     while (! break^) {
       duet := Duet.play(duet^);
-      switch (Queue.peek(q)) {
-      | Some(_) => break := true
-      | None => ()
+      if (duet^.finished) {
+        break := true
       }
     };
-    OptionUtils.unsafeUnwrap(Queue.dequeue(q))
+    stack[Array.length(stack) - 1]
   };
 };
 
@@ -32,7 +38,18 @@ module Part2: Solution.Solver = {
   type input = string;
   type answer = int;
   let cases = [("", 5)];
-  let solve = (input) => 6;
+  let solve = (input) => 4;
+  /* let q1 = Queue.make(0);
+     let q2 = Queue.make(0);
+     let duet = ref(Duet.make(input, ~onRcv=(n) => Queue.enqueue(q, n) |> ignore));
+     let break = ref(false);
+     while (! break^) {
+       duet := Duet.play(duet^);
+       switch (Queue.peek(q)) {
+       | Some(_) => break := true
+       | None => ()
+       }
+     }; */
 };
 
 let part1 = Part1.solve;
