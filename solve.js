@@ -42,7 +42,7 @@ if (process.argv[3] === "part1") {
   console.log(require(`${srcDir}/${longName}.bs`).part2(input));
 } else {
   let input = processInput(process.argv.slice(3));
-  let { part1, part2 } = require(`${srcDir}/${longName}.re`);
+  let { part1, part2 } = require(`${srcDir}/${longName}.bs`);
   console.log(`Part 1: ${part1(input)}`);
   console.log(`Part 2: ${part2(input)}`);
 }
