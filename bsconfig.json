@@ -19,7 +19,8 @@
     "src/day15",
     "src/day16",
     "src/day17",
-    "src/day18"
+    "src/day18",
+    "src/day19"
   ],
   "package-specs": {
     "module": "commonjs",

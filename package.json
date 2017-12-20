@@ -17,6 +17,8 @@
     "bs-platform": "^2.1.0"
   },
   "dependencies": {
+    "ascii-animation": "^1.0.4",
+    "cli-frames": "^2.2.8",
     "shelljs": "^0.7.8"
   }
 }
