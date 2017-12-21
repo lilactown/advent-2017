@@ -9,8 +9,7 @@ module Part1: Solution.Solver = {
       Js.Array.push(d^, journey) |> ignore;
       d := Route.move(d^)
     };
-    /* let frames = Array.map(Route.printDiagram, journey); */
-    /* let stop = ref(false);
+    /* let frames = Array.map(Route.printDiagram, journey);
        let animation = AsciiAnimation.make();
        AsciiAnimation.load(animation, frames) |> AsciiAnimation.start; */
     Js.Array.filter(
