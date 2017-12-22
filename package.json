@@ -6,16 +6,15 @@
     "start": "bsb -make-world -w",
     "clean": "bsb -clean-world",
     "day": "node ./newDay.js",
-    "solve": "node ./solve.js"
+    "solve": "node ./solve.js",
+    "test": "node ./test.js"
   },
   "keywords": [
     "BuckleScript"
   ],
   "author": "",
   "license": "MIT",
-  "devDependencies": {
-    "bs-platform": "^2.1.0"
-  },
+  "devDependencies": {},
   "dependencies": {
     "ascii-animation": "^1.0.4",
     "cli-frames": "^2.2.8",
