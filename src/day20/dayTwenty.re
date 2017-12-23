@@ -125,61 +125,44 @@ p=<3,0,0>, v=<-1,0,0>, a=<0,0,0>|},
       1
     )
   ];
-  let greaterThan = (a: Particle.t, b: Particle.t) => {
-    let (x'_a, y'_a, z'_a) = a.v;
-    let (x''_a, y''_a, z''_a) = a.a;
-    let (x'_b, y'_b, z'_b) = b.v;
-    let (x''_b, y''_b, z''_b) = b.a;
-    if (x'_a > x'_b
-        && x''_a > x''_b
-        && y'_a > y'_b
-        && y''_a > y''_b
-        && z'_a > z'_b
-        && z''_a > z''_b) {
-      true;
-    } else {
-      false;
+  module CollisionBuffer = {
+    include ParticleBuffer;
+    let remove = (buffer: t, p: Particle.t) =>
+      Js.Array.filter(p' => p' != p, buffer);
+    let didCollide = (p0: Particle.t, p1: Particle.t) =>
+      if (p1 != p0) {
+        let (x0, y0, z0) = p0.p;
+        let (x1, y1, z1) = p1.p;
+        x1 == x0 && y1 == y0 && z1 == z0;
+      } else {
+        false;
+      };
+    let removeCollisions = buffer => {
+      let collisions = [||];
+      Array.iter(
+        p0 =>
+          Js.Array.some(didCollide(p0), buffer) ?
+            Js.Array.push(p0, collisions) |> ignore : (),
+        buffer
+      );
+      Array.fold_left((buffer, p) => remove(buffer, p), buffer, collisions);
     };
   };
-  module ParticlePosSet =
-    Set.Make(
-      {
-        include Particle;
-        let compare = (a, b) => {
-          let d = distance(a, Particle.origin) -. distance(b, Particle.origin);
-          if (d > 0.) {
-            1;
-          } else if (d < 0.) {
-            (-1);
-          } else {
-            0;
-          };
-        };
-      }
-    );
-  let makeSet = buffer => Array.to_list(buffer) |> ParticlePosSet.of_list;
-  let makeBuffer = (set: ParticlePosSet.t) : ParticleBuffer.t =>
-    ParticlePosSet.elements(set) |> ParticleBuffer.ofList;
   let solve = input => {
-    let buffer = ref(ParticleBuffer.make(input));
-    let set = ref(makeSet(buffer^));
-    let count = ref(0);
+    let buffer = ref(CollisionBuffer.make(input));
     let t = ref(1.);
-    while (t^ < 10.) {
-      let maxP = ParticlePosSet.max_elt(set^);
-      let withoutMaxP = ParticlePosSet.remove(maxP, set^);
-      let nextMaxP = ParticlePosSet.max_elt(ParticlePosSet.remove(maxP, set^));
-      Js.log(buffer^);
-      if (greaterThan(maxP, nextMaxP)) {
-        count := count^ + 1;
-        set := withoutMaxP;
-        buffer := makeBuffer(set^);
+    /* I took the lazy way */
+    let n = 1_000.;
+    while (t^ < n) {
+      if (Array.length(buffer^) > 1) {
+        buffer := CollisionBuffer.removeCollisions(buffer^);
+        buffer := CollisionBuffer.tick(1., buffer^);
+        t := t^ +. 1.;
+      } else {
+        t := n +. 1.;
       };
-      buffer := ParticleBuffer.tick(t^, makeBuffer(set^));
-      set := makeSet(buffer^);
-      t := t^ +. 1.;
     };
-    count^;
+    Array.length(buffer^);
   };
 };
 
