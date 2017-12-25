@@ -1,10 +1,16 @@
 module InfiniteGrid = {
   include Grid;
+  let grow = (grid, ~padAmount, ~default) =>
+    ArrayUtils.padBothF(
+      ~padAmount,
+      ~f=(_) => Array.make(Grid.size(grid) + padAmount * 2, default),
+      Array.map(ArrayUtils.padBoth(~padAmount, ~withEl=default), grid)
+    );
   let get = (grid: Grid.t('a), ~x, ~y, ~default: 'a) =>
     switch grid[y][x] {
     | v => (v, x, y, grid)
     | exception _ =>
-      let size = Grid.size(grid);
+      let size = Grid.size(grid) - 1;
       let xGrow =
         if (x < 0) {
           - x;
@@ -20,17 +26,7 @@ module InfiniteGrid = {
       let padAmount = max(xGrow, yGrow);
       let newX = x + padAmount;
       let newY = y + padAmount;
-      Js.log3(padAmount, newX, newY);
-      (
-        default,
-        newX,
-        newY,
-        /* ArrayUtils.padBothF( */
-        /*   ~padAmount, */
-        /*   ~f=(_) => Array.make(size + padAmount * 2, default), */
-        Array.map(ArrayUtils.padBoth(~padAmount, ~withEl=default), grid)
-        /* ) */
-      );
+      (default, newX, newY, grow(grid, ~padAmount, ~default));
     };
 };
 
@@ -86,7 +82,6 @@ module Virus = {
   let make = grid : t => {
     let cluster = grid;
     let pos = ((Grid.size(grid) - 1) / 2, (Grid.size(grid) - 1) / 2);
-    Js.log(pos);
     let direction = North;
     let infected = 0;
     {cluster, pos, direction, infected};
@@ -124,10 +119,8 @@ module Part1: Solution.Solver = {
            )
          );
     let virus = ref(Virus.make(seed));
-    for (_ in 1 to 7) {
-      Virus.print(virus^);
+    for (i in 1 to 10_000) {
       virus := Virus.burst(virus^);
-      Js.log(Virus.directionToString(virus^.direction));
     };
     virus^.infected;
   };

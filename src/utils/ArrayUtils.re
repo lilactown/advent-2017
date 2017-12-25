@@ -80,8 +80,8 @@ let padBoth = (arr, ~padAmount, ~withEl) => {
   let max = Array.length(arr) - 1 + padAmount;
   let length = Array.length(arr) + padAmount * 2;
   Array.init(length, i =>
-    if (i > min && i < max) {
-      arr[i - min];
+    if (i > min && i <= max) {
+      arr[i - padAmount];
     } else {
       withEl;
     }
@@ -93,8 +93,8 @@ let padBothF = (arr, ~padAmount, ~f) => {
   let max = Array.length(arr) - 1 + padAmount;
   let length = Array.length(arr) + padAmount * 2;
   Array.init(length, i =>
-    if (i > min && i < max) {
-      arr[i - min];
+    if (i > min && i <= max) {
+      arr[i - padAmount];
     } else {
       f(i);
     }
