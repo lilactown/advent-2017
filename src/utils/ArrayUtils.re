@@ -54,3 +54,49 @@ let partition = (length, arr) =>
   Array.init(Array.length(arr) / length, i =>
     sub(arr, ~start=i * length, ~length)
   );
+
+let padLeft = (arr, ~length, ~withEl) => {
+  let break = length - Array.length(arr);
+  Array.init(length, i =>
+    if (i < break) {
+      withEl;
+    } else {
+      arr[i - break];
+    }
+  );
+};
+
+let padRight = (arr, ~length, ~withEl) =>
+  Array.init(length, i =>
+    if (i > Array.length(arr) - 1) {
+      withEl;
+    } else {
+      arr[i];
+    }
+  );
+
+let padBoth = (arr, ~padAmount, ~withEl) => {
+  let min = padAmount - 1;
+  let max = Array.length(arr) - 1 + padAmount;
+  let length = Array.length(arr) + padAmount * 2;
+  Array.init(length, i =>
+    if (i > min && i < max) {
+      arr[i - min];
+    } else {
+      withEl;
+    }
+  );
+};
+
+let padBothF = (arr, ~padAmount, ~f) => {
+  let min = padAmount - 1;
+  let max = Array.length(arr) - 1 + padAmount;
+  let length = Array.length(arr) + padAmount * 2;
+  Array.init(length, i =>
+    if (i > min && i < max) {
+      arr[i - min];
+    } else {
+      f(i);
+    }
+  );
+};
