@@ -5,20 +5,14 @@ module Processor = {
     | Name(name)
     | Int(int);
   type instruction =
-    | Snd(value)
     | Set(name, value)
-    | Add(name, value)
+    | Subtract(name, value)
     | Multiply(name, value)
-    | Modulo(name, value)
-    | Rcv(value)
-    | JumpIfGreaterThanZero(value, value);
+    | JumpNotZero(value, value);
   type state = {
     stack: array(instruction),
     stackPos: int,
     registers,
-    /* finished: bool, */
-    onRcv: (state, value) => state,
-    onSnd: int => unit,
     locked: bool
   };
   let toValue = (s: string) => {
@@ -40,25 +34,20 @@ module Processor = {
     |> Array.map(StringUtils.splitWith(" "))
     |> Array.map(line =>
          switch line {
-         | [|"snd", x|] => Snd(toValue(x))
          | [|"set", x, y|] => Set(x, toValue(y))
-         | [|"add", x, y|] => Add(x, toValue(y))
+         | [|"sub", x, y|] => Subtract(x, toValue(y))
          | [|"mul", x, y|] => Multiply(x, toValue(y))
-         | [|"mod", x, y|] => Modulo(x, toValue(y))
-         | [|"rcv", x|] => Rcv(toValue(x))
-         | [|"jgz", x, y|] => JumpIfGreaterThanZero(toValue(x), toValue(y))
+         | [|"jnz", x, y|] => JumpNotZero(toValue(x), toValue(y))
          | _ => raise(Failure("Could not parse instructions"))
          }
        );
-  let make = (input, ~onRcv, ~onSnd, ~initialReg) => {
+  let makeProgram = (input, ~initialReg) => {
     stack: parse(input),
     stackPos: 0,
     registers: initialReg,
-    onRcv,
-    onSnd,
     locked: false
   };
-  let play = state => {
+  let run = state => {
     let finished =
       state.stackPos > Array.length(state.stack) - 1 || state.stackPos < 0;
     if (finished) {
@@ -68,24 +57,17 @@ module Processor = {
       let get = getRegister(state.registers);
       let set = setRegister(state.registers);
       switch current {
-      | Snd(Int(f)) =>
-        state.onSnd(f);
-        {...state, locked: false, stackPos: state.stackPos + 1};
-      | Snd(Name(n)) =>
-        let f = get(n);
-        state.onSnd(f);
-        {...state, locked: false, stackPos: state.stackPos + 1};
       | Set(n, Int(f)) =>
         set(n, f);
         {...state, locked: false, stackPos: state.stackPos + 1};
       | Set(n, Name(n2)) =>
         set(n, get(n2));
         {...state, locked: false, stackPos: state.stackPos + 1};
-      | Add(n, Int(f)) =>
-        set(n, IntUtils.add(get(n), f));
+      | Subtract(n, Int(f)) =>
+        set(n, IntUtils.add(get(n), - f));
         {...state, locked: false, stackPos: state.stackPos + 1};
-      | Add(n, Name(n2)) =>
-        set(n, IntUtils.add(get(n), get(n2)));
+      | Subtract(n, Name(n2)) =>
+        set(n, IntUtils.add(get(n), - get(n2)));
         {...state, locked: false, stackPos: state.stackPos + 1};
       | Multiply(n, Int(f)) =>
         set(n, IntUtils.mul(get(n), f));
@@ -93,36 +75,27 @@ module Processor = {
       | Multiply(n, Name(n2)) =>
         set(n, IntUtils.mul(get(n), get(n2)));
         {...state, locked: false, stackPos: state.stackPos + 1};
-      | Modulo(n, Int(f)) =>
-        set(n, IntUtils.modulo(get(n), f));
-        {...state, locked: false, stackPos: state.stackPos + 1};
-      | Modulo(n, Name(n2)) =>
-        set(n, IntUtils.modulo(get(n), get(n2)));
-        {...state, locked: false, stackPos: state.stackPos + 1};
-      | Rcv(Int(f)) => state.onRcv(state, Int(f))
-      | Rcv(Name(n)) => state.onRcv(state, Name(n))
-      /* | Rcv(_) => {...state, locked: false, stackPos: state.stackPos + 1} */
-      | JumpIfGreaterThanZero(Name(n1), Name(n2)) when get(n1) > 0 => {
+      | JumpNotZero(Name(n1), Name(n2)) when get(n1) !== 0 => {
           ...state,
           locked: false,
           stackPos: IntUtils.add(state.stackPos, get(n2))
         }
-      | JumpIfGreaterThanZero(Name(n), Int(f)) when get(n) > 0 => {
+      | JumpNotZero(Name(n), Int(f)) when get(n) !== 0 => {
           ...state,
           locked: false,
           stackPos: IntUtils.add(state.stackPos, f)
         }
-      | JumpIfGreaterThanZero(Int(f), Name(n2)) when f > 0 => {
+      | JumpNotZero(Int(f), Name(n2)) when f !== 0 => {
           ...state,
           locked: false,
           stackPos: IntUtils.add(state.stackPos, get(n2))
         }
-      | JumpIfGreaterThanZero(Int(f1), Int(f2)) when f1 > 0 => {
+      | JumpNotZero(Int(f1), Int(f2)) when f1 !== 0 => {
           ...state,
           locked: false,
           stackPos: IntUtils.add(state.stackPos, f2)
         }
-      | JumpIfGreaterThanZero(_, _) => {
+      | JumpNotZero(_, _) => {
           ...state,
           locked: false,
           stackPos: state.stackPos + 1
@@ -137,30 +110,65 @@ module Processor = {
     };
   let print = ({stack, stackPos}) =>
     switch stack[stackPos] {
-    | Snd(value) => "Snd(" ++ printValue(value) ++ ")"
     | Set(name, value) => "Set(" ++ name ++ ", " ++ printValue(value) ++ ")"
-    | Add(name, value) => "Add(" ++ name ++ ", " ++ printValue(value) ++ ")"
+    | Subtract(name, value) =>
+      "Subtract(" ++ name ++ ", " ++ printValue(value) ++ ")"
     | Multiply(name, value) =>
       "Mul(" ++ name ++ ", " ++ printValue(value) ++ ")"
-    | Modulo(name, value) => "Mod(" ++ name ++ ", " ++ printValue(value) ++ ")"
-    | Rcv(value) => "Rcv(" ++ printValue(value) ++ ")"
-    | JumpIfGreaterThanZero(v1, v2) =>
-      "JGZ(" ++ printValue(v1) ++ ", " ++ printValue(v2) ++ ")"
+    | JumpNotZero(v1, v2) =>
+      "JNZ(" ++ printValue(v1) ++ ", " ++ printValue(v2) ++ ")"
     };
 };
 
 module Part1: Solution.Solver = {
   type input = string;
   type answer = int;
-  let cases = [("", 5)];
-  let solve = input => 6;
+  let cases = [];
+  let solve = input => {
+    let program =
+      ref(Processor.makeProgram(input, ~initialReg=Js.Dict.empty()));
+    let count = ref(0);
+    while (! program^.locked) {
+      program := Processor.run(program^);
+      switch program^.stack[program^.stackPos] {
+      | Multiply(_, _) => count := count^ + 1
+      | _ => ()
+      | exception _ => Js.log("wat.")
+      };
+    };
+    count^;
+  };
 };
 
 module Part2: Solution.Solver = {
   type input = string;
   type answer = int;
-  let cases = [("", 5)];
-  let solve = input => 6;
+  let cases = [];
+  let isPrime = n => {
+    let rec check = k =>
+      if (k == n) {
+        true;
+      } else if (IntUtils.modulo(n, k) == 0) {
+        false;
+      } else {
+        check(k + 1);
+      };
+    check(2);
+  };
+  let solve = _input => {
+    /* This is the completely optimized Reason code.
+       See optimized.js for the notes in JavaScript. */
+    let rec solver = (n, h) =>
+      if (n == 125400) {
+        /* 125400 is not prime */
+        h + 1;
+      } else if (! isPrime(n)) {
+        solver(n + 17, h + 1);
+      } else {
+        solver(n + 17, h);
+      };
+    solver(108400, 0);
+  };
 };
 
 let part1 = Part1.solve;
