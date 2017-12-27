@@ -100,3 +100,39 @@ let padBothF = (arr, ~padAmount, ~f) => {
     }
   );
 };
+
+let filter = (~f, arr) =>
+  Array.fold_left(
+    (newArr, x) =>
+      if (f(x)) {
+        Array.append(newArr, [|x|]);
+      } else {
+        newArr;
+      },
+    [||],
+    arr
+  );
+
+let filteri = (~f, arr) =>
+  fst(
+    Array.fold_left(
+      ((newArr, i), x) =>
+        if (f(i, x)) {
+          (Array.append(newArr, [|x|]), i + 1);
+        } else {
+          (newArr, i + 1);
+        },
+      ([||], 0),
+      arr
+    )
+  );
+
+let exists = Js.Array.some;
+
+let existsi = Js.Array.somei;
+
+let toTuple = arr =>
+  switch arr {
+  | [|a, b|] => (a, b)
+  | _ => raise(Failure("Could not convert to tuple"))
+  };

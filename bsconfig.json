@@ -24,7 +24,8 @@
     "src/day20",
     "src/day21",
     "src/day22",
-    "src/day23"
+    "src/day23",
+    "src/day24"
   ],
   "package-specs": {
     "module": "commonjs",
