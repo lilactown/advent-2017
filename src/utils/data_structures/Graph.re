@@ -57,6 +57,18 @@ let findAllConnected = (v, graph) => {
 
 let paths = (~seen=?, graph: t, v) => {
   let seen = Js.Option.getWithDefault((a: string, b: string) => a == b, seen);
+  let sumLengths = Array.fold_left((t, a) => t + Array.length(a), 0);
+  let appendUnique = (arr1, arr2) =>
+    Array.fold_left(
+      (newArr, el) =>
+        if (! ArrayUtils.exists(el' => el' == el, newArr)) {
+          Array.append([|el|], newArr);
+        } else {
+          newArr;
+        },
+      arr2,
+      arr1
+    );
   let rec traveler = paths => {
     /* Js.log2("paths", paths); */
     let connected =
@@ -66,9 +78,8 @@ let paths = (~seen=?, graph: t, v) => {
              ~f=(v: string) => ! ArrayUtils.exists(seen(v), paths[i]),
              n
            )
-         ); /* |> ArrayUtils.filter(~f=x => x != [||])*/
-    Js.log2("connected", connected);
-    if (Array.length(connected) == 0) {
+         );
+    if (sumLengths(connected) == 0) {
       paths;
     } else {
       let paths' =
@@ -78,13 +89,12 @@ let paths = (~seen=?, graph: t, v) => {
               let curPath = paths[i];
               let newPaths =
                 Array.map(c => Array.append([|c|], curPath), connections);
-              (Array.append(newPaths, paths'), i + 1);
+              (appendUnique(newPaths, paths'), i + 1);
             },
             ([||], 0),
             connected
           )
         );
-      Js.log2("paths'", paths');
       traveler(paths');
     };
   };

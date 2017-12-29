@@ -57,13 +57,14 @@ module Part1: Solution.Solver = {
            )
          )
       |> ArrayUtils.concat;
+    /* Js.log(bridges); */
     let weights =
       Array.map(Array.map(partToTuple), bridges)
       |> Array.map(
            Array.map(((s0, s1)) => (int_of_string(s0), int_of_string(s1)))
          )
       |> Array.map(Array.fold_left((t, (p0, p1)) => t + p0 + p1, 0));
-    /* Js.log(weights); */
+    Js.log(weights);
     IntUtils.max(weights);
   };
 };
