@@ -55,6 +55,38 @@ let findAllConnected = (v, graph) => {
   finder([|v|], StringSet.empty);
 };
 
+type mark =
+  | Unmarked
+  | Temporary
+  | Permanent;
+
+let sort = (graph: t) => {
+  open Array;
+  /* depth first search */
+  let sorted = ref([]);
+  let marked = Js.Dict.entries(graph) |> map(((k, _)) => (k, Unmarked));
+  let select = () =>
+    Js.Array.findIndex(((_, mark)) => mark == Unmarked ? true : false, marked);
+  let selectV = v => Js.Array.findIndex(((k, _)) => k == v, marked);
+  let n = ref(0);
+  let rec visit = n =>
+    switch marked[n] {
+    | (_, Permanent) => ()
+    | (_, Temporary) => raise(Failure("Graph is not a DAG"))
+    | (v, Unmarked) =>
+      let edges = Js.Option.getExn(Js.Dict.get(graph, v));
+      iter(v' => visit(selectV(v')), edges);
+      marked[n] = (v, Permanent);
+      sorted := [v, ...sorted^];
+      ();
+    };
+  while (n^ != (-1)) {
+    visit(n^);
+    n := select();
+  };
+  List.rev(sorted^);
+};
+
 let paths = (~seen=?, graph: t, v) => {
   let seen = Js.Option.getWithDefault((a: string, b: string) => a == b, seen);
   let sumLengths = Array.fold_left((t, a) => t + Array.length(a), 0);

@@ -30,13 +30,13 @@ module Part1: Solution.Solver = {
     let bridgeGraph =
       Array.map(
         part => {
-          let (_in0, out0) =
+          let (in0, out0) =
             ArrayUtils.toTuple(StringUtils.splitWith("/", part));
           let connections =
             ArrayUtils.filter(
               ~f=
                 c => {
-                  let (in1, _out1) =
+                  let (in1, out1) =
                     ArrayUtils.toTuple(StringUtils.splitWith("/", c));
                   c != part && c != swapSides(part) && in1 == out0;
                 },
@@ -47,26 +47,57 @@ module Part1: Solution.Solver = {
         parts
       )
       |> Graph.fromArray;
-    /* Js.log(bridgeGraph); */
-    let bridges =
-      ArrayUtils.filter(~f=p => p.[0] == '0', parts)
-      |> Array.map(
-           Graph.paths(
-             ~seen=(a, b) => a == b || a == swapSides(b),
-             bridgeGraph
-           )
-         )
-      |> ArrayUtils.concat;
-    /* Js.log(bridges); */
-    let weights =
-      Array.map(Array.map(partToTuple), bridges)
-      |> Array.map(
-           Array.map(((s0, s1)) => (int_of_string(s0), int_of_string(s1)))
-         )
-      |> Array.map(Array.fold_left((t, (p0, p1)) => t + p0 + p1, 0));
-    Js.log(weights);
-    IntUtils.max(weights);
+    Js.log(bridgeGraph);
+    Js.log(Graph.sort(bridgeGraph) |> Array.of_list);
+    7;
   };
+  /* let solve = input => { */
+  /*   let parts = */
+  /*     StringUtils.splitWith("\n", input) */
+  /*     |> Array.fold_left( */
+  /*          (newArr, part) => Array.append(newArr, [|part, swapSides(part)|]), */
+  /*          [||] */
+  /*        ); */
+  /*   let bridgeGraph = */
+  /*     Array.map( */
+  /*       part => { */
+  /*         let (_in0, out0) = */
+  /*           ArrayUtils.toTuple(StringUtils.splitWith("/", part)); */
+  /*         let connections = */
+  /*           ArrayUtils.filter( */
+  /*             ~f= */
+  /*               c => { */
+  /*                 let (in1, _out1) = */
+  /*                   ArrayUtils.toTuple(StringUtils.splitWith("/", c)); */
+  /*                 c != part && c != swapSides(part) && in1 == out0; */
+  /*               }, */
+  /*             parts */
+  /*           ); */
+  /*         (part, connections); */
+  /*       }, */
+  /*       parts */
+  /*     ) */
+  /*     |> Graph.fromArray; */
+  /*   /\* Js.log(bridgeGraph); *\/ */
+  /*   let bridges = */
+  /*     ArrayUtils.filter(~f=p => p.[0] == '0', parts) */
+  /*     |> Array.map( */
+  /*          Graph.paths( */
+  /*            ~seen=(a, b) => a == b || a == swapSides(b), */
+  /*            bridgeGraph */
+  /*          ) */
+  /*        ) */
+  /*     |> ArrayUtils.concat; */
+  /*   /\* Js.log(bridges); *\/ */
+  /*   let weights = */
+  /*     Array.map(Array.map(partToTuple), bridges) */
+  /*     |> Array.map( */
+  /*          Array.map(((s0, s1)) => (int_of_string(s0), int_of_string(s1))) */
+  /*        ) */
+  /*     |> Array.map(Array.fold_left((t, (p0, p1)) => t + p0 + p1, 0)); */
+  /*   Js.log(weights); */
+  /*   IntUtils.max(weights); */
+  /* }; */
 };
 
 module Part2: Solution.Solver = {
