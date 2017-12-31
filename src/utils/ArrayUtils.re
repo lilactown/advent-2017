@@ -136,3 +136,20 @@ let toTuple = arr =>
   | [|a, b|] => (a, b)
   | _ => raise(Failure("Could not convert to tuple"))
   };
+
+let remove = (~f) => {
+  let removed = ref(false);
+  filter(~f=x =>
+    if (! removed^ && f(x)) {
+      removed := true;
+      false;
+    } else {
+      true;
+    }
+  );
+};
+
+let sort = (~f, arr) => {
+  let copy = Array.copy(arr);
+  Js.Array.sortInPlaceWith(f, copy);
+};
